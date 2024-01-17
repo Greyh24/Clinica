@@ -20,7 +20,7 @@ class VentanaAdultos(tk.Frame):
         self.frame_tabla_visualizacion = tk.Frame(self, bg='#CDD8FF')
         self.frame_tabla_visualizacion.grid(row=2, column=0, sticky="nsew")
 
-        self.datos_originales = []
+        
 
         self.inicializar_gui()
         self.selected_index = None
@@ -152,7 +152,7 @@ class VentanaAdultos(tk.Frame):
         self.btnModificar = tk.Button(self.scrollable_frame, text='Modificar', width=10, font=('Arial', 10, 'bold'),fg='#FFFEFE', bg='#1658A2', cursor='hand2', activebackground='#3D69F0')
         self.btnModificar.grid(column=2, row=5, padx=5, pady=5)
 
-        self.btnEliminar = tk.Button(self.scrollable_frame, text='Eliminar', width=10, font=('Arial', 10, 'bold'),fg='#FFFEFE', bg='#D32F2F', cursor='hand2', activebackground='#E72D40')
+        self.btnEliminar = tk.Button(self.scrollable_frame, text='Eliminar', width=10, font=('Arial', 10, 'bold'),fg='#FFFEFE', bg='#D32F2F', cursor='hand2', activebackground='#E72D40',command=self.eliminar_datos_seleccionados)
         self.btnEliminar.grid(column=3, row=5, padx=5, pady=5)
 
         self.btnImportar = tk.Button(self.scrollable_frame, text='Importar', width=10, font=('Arial', 10, 'bold'),fg='#FFFEFE', bg='#CF811E', cursor='hand2', activebackground='#E72D40')
@@ -161,10 +161,10 @@ class VentanaAdultos(tk.Frame):
         self.btnExportar = tk.Button(self.scrollable_frame, text='Exportar', width=10, font=('Arial', 10, 'bold'),fg='#FFFEFE', bg='#CF811E', cursor='hand2', activebackground='#E72D40')
         self.btnExportar.grid(column=5, row=5, padx=15, pady=5)
 
-        self.btnBuscarhc = tk.Button(self.scrollable_frame, text='Buscar', width=10, font=('Arial', 10, 'bold'),fg='#FFFEFE', bg='#0F1010', cursor='hand2', activebackground='#FFFEFE')
+        self.btnBuscarhc = tk.Button(self.scrollable_frame, text='Buscar', width=10, font=('Arial', 10, 'bold'),fg='#FFFEFE', bg='#0F1010', cursor='hand2', activebackground='#FFFEFE', command=self.buscar_por_hc)
         self.btnBuscarhc.grid(column=2, row=6, padx=15, pady=15)
 
-        self.btnBuscardni = tk.Button(self.scrollable_frame, text='Buscar', width=10, font=('Arial', 10, 'bold'),fg='#FFFEFE', bg='#0F1010', cursor='hand2', activebackground='#FFFEFE')
+        self.btnBuscardni = tk.Button(self.scrollable_frame, text='Buscar', width=10, font=('Arial', 10, 'bold'),fg='#FFFEFE', bg='#0F1010', cursor='hand2', activebackground='#FFFEFE', command=self.buscar_por_dni)
         self.btnBuscardni.grid(column=5, row=6, padx=5, pady=15)
 
 
@@ -321,19 +321,110 @@ class VentanaAdultos(tk.Frame):
                 reader = csv.reader(file)
                 next(reader, None)
                 datos = [row for row in reader]
-                print("Datos leídos desde el archivo CSV:", datos)  # Agregado para depuración
+                print("Datos leídos desde el archivo CSV:", datos)  # Imprime los datos para depurar
 
                 # Limpiar la tabla antes de cargar los datos ordenados
                 self.tabla.delete(*self.tabla.get_children())
 
                 for row in datos:
                     self.tabla.insert("", "end", values=row, tags=(row[0],))
+                    self.datos_originales.append({  # Asegúrate de agregar los datos al atributo datos_originales
+                        'HC': row[0],
+                        'Fecha': row[1],
+                        'Edad': row[2],
+                        'Sexo': row[3],
+                        'Nombre': row[4],
+                        'Apellido': row[5],
+                        'FechaN': row[6],
+                        'DNI': row[7],
+                        'Telefono': row[8]
+                    })
 
         except FileNotFoundError:
             print("Archivo no encontrado")  # Agregado para depuración
-            pass
 
-                
+
+    def eliminar_datos_seleccionados(self):
+        selected_item = self.tabla.selection()
+
+        if selected_item:
+            hc_value = self.tabla.item(selected_item, 'values')[0]
+
+            # Eliminar de datos_originales
+            self.datos_originales = [paciente for paciente in self.datos_originales if paciente['HC'] != hc_value]
+
+            # Eliminar de la tabla
+            self.tabla.delete(selected_item)
+
+            # Actualizar archivo CSV
+            self.actualizar_archivo_csv()
+
+    def buscar_por_hc(self):
+        hc_buscar = self.svBuscHC.get()
+
+        if not hc_buscar:
+            messagebox.showwarning("Advertencia", "Por favor, ingrese la Historia Clínica para buscar.")
+            return
+
+        print("Historia Clínica a buscar:", hc_buscar)
+
+        # Limpiar la tabla antes de mostrar el resultado
+        self.tabla.delete(*self.tabla.get_children())
+
+        # Buscar en datos_originales
+        print("Datos originales:", self.datos_originales)
+        pacientes_encontrados = [paciente for paciente in self.datos_originales if paciente['HC'] == hc_buscar]
+
+        print("Pacientes encontrados:", pacientes_encontrados)
+
+        if pacientes_encontrados:
+            # Insertar los pacientes encontrados en la tabla
+            for paciente_encontrado in pacientes_encontrados:
+                row_data = [paciente_encontrado[field] for field in ['HC', 'Fecha', 'Edad', 'Sexo', 'Nombre', 'Apellido', 'FechaN', 'DNI', 'Telefono']]
+                self.tabla.insert("", "end", values=row_data, tags=(hc_buscar,))
+        else:
+            messagebox.showinfo("Información", "No se encontraron resultados para la Historia Clínica proporcionada.")
+
+
+
+    def buscar_por_dni(self):
+        dni_buscar = self.svBuscDNI.get()
+
+        if not dni_buscar:
+            messagebox.showwarning("Advertencia", "Por favor, ingrese el DNI para buscar.")
+            return
+
+        # Limpiar la tabla antes de mostrar el resultado
+        self.tabla.delete(*self.tabla.get_children())
+
+        # Buscar en datos_originales
+        pacientes_encontrados = [paciente for paciente in self.datos_originales if paciente['DNI'] == dni_buscar]
+
+        if pacientes_encontrados:
+            # Insertar los pacientes encontrados en la tabla
+            for paciente_encontrado in pacientes_encontrados:
+                row_data = [paciente_encontrado[field] for field in ['HC', 'Fecha', 'Edad', 'Sexo', 'Nombre', 'Apellido', 'FechaN', 'DNI', 'Telefono']]
+                self.tabla.insert("", "end", values=row_data, tags=(dni_buscar,))
+        else:
+            messagebox.showinfo("Información", "No se encontraron resultados para el DNI proporcionado.")
+
+
+
+    def filtrar_tabla(self):
+        hc_buscar = self.svBuscHC.get()
+        dni_buscar = self.svBuscDNI.get()
+
+        self.tabla.delete(*self.tabla.get_children())
+
+        for datos_fila in self.datos_originales:
+            hc_fila = datos_fila[0]
+            dni_fila = datos_fila[8]  # Ajustar el índice según tu estructura de datos
+
+            if ((not hc_buscar or hc_fila == hc_buscar) and 
+                (not dni_buscar or dni_fila == dni_buscar)):
+                self.tabla.insert("", "end", values=datos_fila, tags=(datos_fila[0],))
+
+
 if __name__ == "__main__":
     root = tk.Tk()
     app = VentanaAdultos(root)

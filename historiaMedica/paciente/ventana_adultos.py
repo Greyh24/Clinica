@@ -23,6 +23,7 @@ class VentanaAdultos(tk.Frame):
         self.datos_originales = []
 
         self.inicializar_gui()
+        self.selected_index = None
 
     def inicializar_gui(self):
         self.campos_paciente()
@@ -43,16 +44,6 @@ class VentanaAdultos(tk.Frame):
     def validate_letter(self, value):
         return all(c.isalpha() or c.isspace() for c in value) or value == ""
     
-    def on_select(self, event):
-
-        # Get the selected item
-        selected_item = self.tabla.selection()
-
-        if selected_item:
-            # Do something with the selected item
-            print(f"Selected item: {self.tabla.item(selected_item)}")
-
-
     def campos_paciente(self):
         self.scrollbar_y = tk.Scrollbar(self.frame_info, orient="vertical", command=self.yview)
         self.scrollbar_y.grid(row=0, column=1, sticky="ns")
@@ -221,6 +212,37 @@ class VentanaAdultos(tk.Frame):
         self.tabla.bind("<ButtonRelease-1>", self.on_select)
         self.cargar_formulario()
     
+    def actualizar_archivo_csv(self):
+        with open("datos_adultos.csv", mode="w", newline="", encoding="utf-8") as file:
+            writer = csv.writer(file)
+            writer.writerow(["Historia Clínica", "Fecha", "Edad", "Sexo", "Nombres", "Apellidos", "Fecha de Nacimiento", "Teléfono", "DNI"])
+            for fila_tabla in self.tabla.get_children():
+                datos_fila = self.tabla.item(fila_tabla)['values']
+                writer.writerow(datos_fila)
+
+    def actualizar_tabla(self):
+        # Clear the table before updating
+        self.tabla.delete(*self.tabla.get_children())
+
+        # Update the table with the latest data
+        for row in self.datos_originales:
+            self.tabla.insert("", "end", values=row, tags=(row[0],))
+
+    def on_select(self, event):
+        # Obtén el elemento seleccionado
+        selected_item = self.tabla.selection()
+
+        if selected_item:
+            # Obtiene el valor de la Historia Clínica (HC) de la fila seleccionada
+            hc_value = self.tabla.item(selected_item, 'values')[0]
+
+            # Hacer algo con la Historia Clínica (HC), como imprimirlo
+            print(f"Selected HC: {hc_value}")
+
+            # También puedes acceder a los valores de la fila directamente desde el árbol
+            values = self.tabla.item(selected_item, 'values')
+            print(f"Values: {values}")
+
 
     def guardar_datos(self):
         try:
@@ -265,12 +287,15 @@ class VentanaAdultos(tk.Frame):
             self.guardar_en_csv(row_data)
 
             # Limpiar los campos después de guardar
-            for entry in [self.entryHC, self.entryfecha, self.entryedad, self.checkbox_masculino, self.checkbox_femenino,
-                        self.entryNombre, self.entryApellido, self.entryFechaN, self.entryDNI, self.entrytelef]:
+            for entry in [self.entryHC, self.entryfecha, self.entryedad, self.entryNombre, self.entryApellido, self.entryFechaN, self.entryDNI, self.entrytelef]:
                 entry.delete(0, tk.END)
+
+            self.checkbox_masculino.deselect()
+            self.checkbox_femenino.deselect()
 
         except Exception as e:
             print("Error", f"Error al guardar datos: {str(e)}")
+
 
     def guardar_en_csv(self, datos):
         try:
@@ -285,43 +310,29 @@ class VentanaAdultos(tk.Frame):
 
         if selected_item:
             # Do something with the selected item
-            print(f"Selected item: {self.tabla.item(selected_item)}")
+            print(f"Selected item: {selected_item}")
+            print(f"Item data: {self.tabla.item(selected_item)}")
+            print(f"Datos: {datos}")
 
-    def actualizar_archivo_csv(self):
-        with open("datos_adultos.csv", mode="w", newline="", encoding="utf-8") as file:
-            writer = csv.writer(file)
-            writer.writerow(["Historia Clínica", "Fecha", "Edad", "Sexo", "Nombres", "Apellidos", "Fecha de Nacimiento", "Teléfono", "DNI"])
-            for fila_tabla in self.tabla.get_children():
-                datos_fila = self.tabla.item(fila_tabla)['values']
-                writer.writerow(datos_fila)
-
-    def actualizar_tabla(self):
-        # Clear the table before updating
-        self.tabla.delete(*self.tabla.get_children())
-
-        # Update the table with the latest data
-        for row in self.datos_originales:
-            self.tabla.insert("", "end", values=row, tags=(row[0],))
 
     def cargar_formulario(self):
-       
-        self.actualizar_tabla()
-        self.cargar_formulario
         try:
             with open("datos_adultos.csv", mode="r", encoding="utf-8") as file:
                 reader = csv.reader(file)
                 next(reader, None)
                 datos = [row for row in reader]
-                self.datos_originales = sorted(datos, key=lambda x: datetime.strptime(x[1], '%d-%m-%Y'), reverse=True)
+                print("Datos leídos desde el archivo CSV:", datos)  # Agregado para depuración
 
                 # Limpiar la tabla antes de cargar los datos ordenados
                 self.tabla.delete(*self.tabla.get_children())
 
-                for row in self.datos_originales:
+                for row in datos:
                     self.tabla.insert("", "end", values=row, tags=(row[0],))
+
         except FileNotFoundError:
+            print("Archivo no encontrado")  # Agregado para depuración
             pass
-        
+
                 
 if __name__ == "__main__":
     root = tk.Tk()

@@ -243,7 +243,6 @@ class VentanaAdultos(tk.Frame):
             values = self.tabla.item(selected_item, 'values')
             print(f"Values: {values}")
 
-
     def guardar_datos(self):
         try:
             hc = self.svHC.get()
@@ -296,7 +295,6 @@ class VentanaAdultos(tk.Frame):
         except Exception as e:
             print("Error", f"Error al guardar datos: {str(e)}")
 
-
     def guardar_en_csv(self, datos):
         try:
             with open("datos_adultos.csv", mode="a", newline="", encoding="utf-8") as file:
@@ -313,7 +311,6 @@ class VentanaAdultos(tk.Frame):
             print(f"Selected item: {selected_item}")
             print(f"Item data: {self.tabla.item(selected_item)}")
             print(f"Datos: {datos}")
-
 
     def cargar_formulario(self):
         try:
@@ -342,7 +339,6 @@ class VentanaAdultos(tk.Frame):
 
         except FileNotFoundError:
             print("Archivo no encontrado")  # Agregado para depuración
-
 
     def eliminar_datos_seleccionados(self):
         selected_item = self.tabla.selection()
@@ -385,8 +381,6 @@ class VentanaAdultos(tk.Frame):
         else:
             messagebox.showinfo("Información", "No se encontraron resultados para la Historia Clínica proporcionada.")
 
-
-
     def buscar_por_dni(self):
         dni_buscar = self.svBuscDNI.get()
 
@@ -408,8 +402,6 @@ class VentanaAdultos(tk.Frame):
         else:
             messagebox.showinfo("Información", "No se encontraron resultados para el DNI proporcionado.")
 
-
-
     def filtrar_tabla(self):
         hc_buscar = self.svBuscHC.get()
         dni_buscar = self.svBuscDNI.get()
@@ -424,6 +416,7 @@ class VentanaAdultos(tk.Frame):
                 (not dni_buscar or dni_fila == dni_buscar)):
                 self.tabla.insert("", "end", values=datos_fila, tags=(datos_fila[0],))
 
+    
 
 if __name__ == "__main__":
     root = tk.Tk()

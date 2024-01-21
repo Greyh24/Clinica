@@ -1,9 +1,13 @@
 import tkinter as tk
-from tkinter import filedialog
+import matplotlib.pyplot as plt
+from tkinter import messagebox,filedialog,ttk
 from tkcalendar import DateEntry
-from tkinter import ttk
 from time import strftime
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk,ImageGrab
+from datetime import datetime
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from matplotlib.backends.backend_pdf import PdfPages
 
 class VentanaDiagnosticoMedico(tk.Frame):
     def __init__(self, root):
@@ -13,6 +17,17 @@ class VentanaDiagnosticoMedico(tk.Frame):
         self.root.title("Diagnóstico Médico")
         self.canvas = tk.Canvas(self, bg='#8C9BBA', width=1300, height=620)
         self.canvas.grid(row=0, column=0, sticky="nsew")
+
+        # Obtener la resolución de la pantalla
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+
+        # Calcular las coordenadas para centrar la ventana
+        x_coordinate = (screen_width - 1320) // 2  # Ancho de la ventana
+        y_coordinate = (screen_height - 620) // 2  # Altura de la ventana
+
+        # Centrar la ventana en la pantalla
+        self.root.geometry(f"1320x620+{x_coordinate}+{y_coordinate}")
 
         self.scrollable_frame = tk.Frame(self.canvas, bg='#8C9BBA')
         self.scrollable_frame.grid(row=0, column=0, sticky="nsew")
@@ -127,6 +142,10 @@ class VentanaDiagnosticoMedico(tk.Frame):
         self.lblPaci = tk.Label(self.scrollable_frame, text='Paciente: ', font=('ARIAL', 14, 'bold'),fg='#ffffff', bg='#8C9BBA')
         self.lblPaci.grid(column=0, row=1, padx=0, pady=5)
 
+        self.svPaci = tk.StringVar()
+        self.entryPaci = tk.Entry(self.scrollable_frame, textvariable=self.svPaci, width=20, font=('ARIAL', 10,'bold'))
+        self.entryPaci.grid(column=1, row=1, padx=0, pady=5)
+
         self.lblEdad = tk.Label(self.scrollable_frame, text='Edad: ', font=('ARIAL', 8, 'bold'),fg='black', bg='#8C9BBA')
         self.lblEdad.grid(column=0, row=2, padx=0, pady=5)
 
@@ -176,7 +195,7 @@ class VentanaDiagnosticoMedico(tk.Frame):
         self.entryDNI = tk.Entry(self.scrollable_frame, textvariable=self.svDNI, width=20, font=('ARIAL', 10,'bold'))
         self.entryDNI.grid(column=3, row=2, padx=0, pady=5)
 
-        self.lblTrans = tk.Label(self.scrollable_frame, text='Transito: ', font=('ARIAL', 8, 'bold'),fg='black', bg='#8C9BBA')
+        self.lblTrans = tk.Label(self.scrollable_frame, text='Tipo de Accidente: ', font=('ARIAL', 8, 'bold'),fg='black', bg='#8C9BBA')
         self.lblTrans.grid(column=2, row=3, padx=5, pady=5)
 
         self.svTrans = tk.StringVar()
@@ -376,7 +395,7 @@ class VentanaDiagnosticoMedico(tk.Frame):
         self.entryFR = tk.Entry(self.scrollable_frame, textvariable=self.svFR, width=10, font=('ARIAL', 10,'bold'))
         self.entryFR.grid(column=3, row=20, padx=(10,0), pady=5)
 
-        self.lblTº = tk.Label(self.scrollable_frame, text='Tº ', font=('ARIAL', 10, 'bold'),fg='black', bg='#8C9BBA')
+        self.lblTº = tk.Label(self.scrollable_frame, text='Temp ', font=('ARIAL', 10, 'bold'),fg='black', bg='#8C9BBA')
         self.lblTº.grid(column=4, row=20, padx=(0,90), pady=5)
 
         self.svTº = tk.StringVar()
@@ -475,7 +494,7 @@ class VentanaDiagnosticoMedico(tk.Frame):
         self.entryProcedimientos = tk.Text(self.scrollable_frame, wrap=tk.WORD, width=160, height=5, font=('ARIAL', 10, 'bold'))
         self.entryProcedimientos.grid(column=0, row=33, padx=5, pady=5, columnspan=7, rowspan=2)
 
-        self.lblDF = tk.Label(self.scrollable_frame, text='Diagnóstico de Final: ', font=('ARIAL', 12, 'bold'),fg='black', bg='#8C9BBA')
+        self.lblDF = tk.Label(self.scrollable_frame, text='Diagnóstico Final: ', font=('ARIAL', 12, 'bold'),fg='black', bg='#8C9BBA')
         self.lblDF.grid(column=0, row=37, padx=0, pady=5)
 
         self.svDF = tk.StringVar()
@@ -568,13 +587,19 @@ class VentanaDiagnosticoMedico(tk.Frame):
         self.entryNAtend = tk.Checkbutton(self.scrollable_frame, text="No Atendido", variable=self.svNAtend, width=20, font=('ARIAL', 10, 'bold'),fg='black', bg='#8C9BBA')
         self.entryNAtend.grid(column=5, row=51, padx=0, pady=5)
 
-        self.lblMedRes = tk.Label(self.scrollable_frame, text='Medico Responsable: ', font=('ARIAL', 10, 'bold'), fg='black', bg='#8C9BBA')
-        self.lblMedRes.grid(column=2, row=53, padx=0, pady=5)
+        self.lblMedRes = tk.Label(self.scrollable_frame, text='Firma del medico responsable: ', font=('ARIAL', 10, 'bold','underline'), underline=6, fg='black', bg='#8C9BBA')
+        self.lblMedRes.grid(column=3, row=54, padx=0, pady=5)
 
         self.contenedor_MedRes = tk.Label(self.scrollable_frame, bg='#ffffff')
-        self.contenedor_MedRes.grid(column=2, row=54, padx=5, pady=5)
+        self.contenedor_MedRes.grid(column=3, row=53, padx=5, pady=5)
         self.imagen_tk_MedRes = None
         self.contenedor_MedRes.bind("<Button-1>", lambda event, contenedor=self.contenedor_MedRes: self.mostrar_imagen(event, contenedor))
+
+        # Cargar la imagen "firma.png"
+        ruta_firma = "C:/Users/Yo/Desktop/Clinica/historiaMedica/imagenes/firma.png"
+        imagen_firma = Image.open(ruta_firma)
+        self.mostrar_imagen_en_label(imagen_firma, self.contenedor_MedRes)
+
 
         self.lblExaAdi = tk.Label(self.scrollable_frame, text='Examenes Adicionales: ', font=('ARIAL', 10, 'bold'), fg='black', bg='#8C9BBA')
         self.lblExaAdi.grid(column=2, row=57, padx=0, pady=5)
@@ -586,9 +611,763 @@ class VentanaDiagnosticoMedico(tk.Frame):
         self.contenedor_ExaAdi = tk.Label(self.scrollable_frame, bg='#ffffff')
         self.contenedor_ExaAdi.grid(column=3, row=58, padx=5, pady=5)
         self.imagen_tk_ExaAdi = None
-        self.lblExaAdi.bind("<Button-1>", self.mostrar_cuadro_dialogo)
+        self.contenedor_ExaAdi.bind("<Button-1>", self.mostrar_cuadro_dialogo)
 
-        # Crear una ventana y mostrarla
+        # Cargar la imagen predeterminada "galeria.png"
+        ruta_predeterminada = "C:/Users/Yo/Desktop/Clinica/historiaMedica/imagenes/galeria.png"
+        imagen_predeterminada = Image.open(ruta_predeterminada)
+        self.mostrar_imagen_en_label(imagen_predeterminada, self.contenedor_ExaAdi)
+
+        # botones 
+        self.BtnGuardarDoc = tk.Button(self.scrollable_frame, text='Guardar Documento', width=18, font=('Arial', 10, 'bold'),fg='#FFFEFE', bg='#0F1010', cursor='hand2', activebackground='#FFFEFE',command=self.generar_pdf)
+        self.BtnGuardarDoc.grid(column=1, row=59, padx=5, pady=15)
+
+        self.BtnCrearD = tk.Button(self.scrollable_frame, text='Crear Díagnostico', width=20, font=('Arial', 10, 'bold'),fg='#FFFEFE', bg='#1658A2', cursor='hand2', activebackground='#3D69F0',command=self.abrir_nueva_ventana)
+        self.BtnCrearD.grid(column=3, row=59, padx=5, pady=5)
+
+        self.BtnCerrar = tk.Button(self.scrollable_frame, text='Cerrar', width=20, font=('Arial', 10, 'bold'),fg='#FFFEFE', bg='#D32F2F', cursor='hand2', activebackground='#3D69F0',command=self.cerrar_ventana)
+        self.BtnCerrar.grid(column=5, row=59, padx=5, pady=5)
+    
+    #funcion utilizada para crear pdf de la ficha del diagnostico
+    def generar_pdf(self):
+        # Obtener los datos de la GUI
+        datos_gui = self.obtener_datos()
+
+        # Crear una interfaz de selección de archivo
+        root = tk.Tk()
+        root.withdraw()  # Evita que aparezca la ventana principal de tkinter
+
+        # Mostrar el cuadro de diálogo para seleccionar la ubicación y el nombre del archivo
+        file_path = filedialog.asksaveasfilename(defaultextension=".pdf", filetypes=[("PDF files", "*.pdf")])
+
+        # Verificar si el usuario canceló la operación
+        if not file_path:
+            return
+
+        # Crear un nuevo PDF
+        c = canvas.Canvas(file_path, pagesize=letter)
+
+        # Inicializar variables para el seguimiento de la posición en la página
+        y_actual = 750
+        espacio_requerido = 20  # Espacio requerido entre líneas
+        espacio_pagina = 750  # Espacio total en una página
+
+        # Función para verificar si hay suficiente espacio en la página actual
+        def hay_espacio_suficiente():
+            return y_actual - espacio_requerido > 0
+
+        # Función para crear una nueva página
+        def crear_nueva_pagina():
+            nonlocal c, y_actual
+            c.showPage()  # Crear una nueva página
+            y_actual = espacio_pagina  # Restablecer la posición vertical en la nueva página
+
+        # Función para agregar texto a la página actual
+        def agregar_texto(texto):
+            nonlocal y_actual
+            c.drawString(100, y_actual, texto)
+            y_actual -= espacio_requerido  # Actualizar la posición vertical
+
+        # Agregar texto al PDF usando los datos proporcionados
+        agregar_texto("{}".format(datos_gui["Diagnostico_Medico"]))
+        agregar_texto("Paciente: {}".format(datos_gui["Paciente"]))
+
+        # Campos adicionales relacionados con el paciente
+        y_paciente = y_actual - espacio_requerido
+        campos_paciente = [
+            ("Edad", datos_gui["Edad"]),
+            ("Sexo", datos_gui["Sexo"]),
+            ("Dirección", datos_gui["Direccion"]),
+            ("Distrito", datos_gui["Distrito"]),
+            ("Responsable", datos_gui["Responsable"]),
+            ("Modo de Ingreso", datos_gui["Modo_Ingreso"]),
+            ("DNI", datos_gui["DNI"]),
+            ("Tipo de Accidente", datos_gui["Tipo_AccidenteP"]or ""),
+            ("Tipo de Seguro", datos_gui["Tipo_Seg"]),
+            ("Teléfono", datos_gui["Telefono"]),
+            ("Ficha", datos_gui["Ficha"]),
+            ("Fecha de Presentación", datos_gui["Fecha_P"]),
+            ("Hora de Presentación", datos_gui["Hora_P"]),
+            ("Historia", datos_gui["Historia"]),
+        ]
+
+        for campo, valor in campos_paciente:
+            if y_paciente - espacio_requerido < 0:
+                crear_nueva_pagina()  # Crear nueva página si no hay suficiente espacio
+                y_paciente = espacio_pagina
+
+            agregar_texto("{}: {}".format(campo, valor))
+            y_paciente -= espacio_requerido
+
+        # Campos adicionales relacionados con el accidente
+        y_accidente = y_paciente - espacio_requerido
+        campos_accidente = [
+            ("Prioridad de Daño",self.obtener_valor_seleccionado(datos_gui["Prioridad_Daño"])),
+            ("Tipo de Accidente", self.obtener_valor_seleccionado(datos_gui["Tipo_Accidente"])),
+            ("Otros Accidentes", datos_gui["Otros_Accidente"]),
+            ("Fecha del Accidente", datos_gui["Fecha_Accidente"]),
+            ("Hora del Accidente", datos_gui["Hora_Accidente"]),
+        ]
+
+        for campo, valor in campos_accidente:
+            if y_accidente - espacio_requerido < 0:
+                crear_nueva_pagina()  # Crear nueva página si no hay suficiente espacio
+                y_accidente = espacio_pagina
+            agregar_texto("{}: {}".format(campo, valor))
+            y_accidente -= espacio_requerido
+
+        # Campos adicionales relacionados con ANAMNESIS
+        y_anamnesis = y_accidente - espacio_requerido
+        campos_anamnesis = [
+            ("Tiempo de Enfermedad", datos_gui["Tiempo_Enfermedad"]),
+            ("Motivo de Consulta", datos_gui["Motivo_Consulta"]),
+            ("Antecedentes", datos_gui["Antecedentes"]),
+        ]
+
+        for campo, valor in campos_anamnesis:
+            if y_anamnesis - espacio_requerido < 0:
+                crear_nueva_pagina()  # Crear nueva página si no hay suficiente espacio
+                y_anamnesis = espacio_pagina
+
+            agregar_texto("{}: {}".format(campo, valor))
+            y_anamnesis -= espacio_requerido
+
+        # Campos adicionales relacionados con Examen Clínico
+        y_examen_clinico = y_anamnesis - espacio_requerido
+        campos_examen_clinico = [
+            ("P.A", datos_gui["P.A"]),
+            ("FC", datos_gui["FC"]),
+            ("FR", datos_gui["FR"]),
+            ("Tº", datos_gui["Tº"]),
+            ("SO", datos_gui["SO"]),
+            ("Peso", datos_gui["Peso"]),
+        ]
+
+        for campo, valor in campos_examen_clinico:
+            if y_examen_clinico - espacio_requerido < 0:
+                crear_nueva_pagina()  # Crear nueva página si no hay suficiente espacio
+                y_examen_clinico = espacio_pagina
+
+            agregar_texto("{}: {}".format(campo, valor))
+            y_examen_clinico -= espacio_requerido
+
+        # Campos adicionales relacionados con el examen preferencial
+        y_examen_preferencial = y_examen_clinico - espacio_requerido
+        if y_examen_preferencial - espacio_requerido < 0:
+            crear_nueva_pagina()  # Crear nueva página si no hay suficiente espacio
+
+        agregar_texto("Examen Preferencial: {}".format(datos_gui["Examen_Preferencial"]))
+
+        # Campos adicionales relacionados con Diagnóstico de Ingreso
+        y_diagnostico_ingreso = y_examen_preferencial - espacio_requerido
+        if y_diagnostico_ingreso - espacio_requerido < 0:
+            crear_nueva_pagina()  # Crear nueva página si no hay suficiente espacio
+
+        agregar_texto("Diagnóstico de Ingreso: {}".format(datos_gui["Diagnostico_Ingreso"]))
+        agregar_texto("COD CIE-10: {}".format(datos_gui["COD_CIE_10"]))
+
+        # Campos adicionales relacionados con Plan de Trabajo
+        y_plan_trabajo = y_diagnostico_ingreso - espacio_requerido
+        campos_plan_trabajo = [
+            ("Hidratación", datos_gui["Plan_Trabajo"]["Hidratacion"]),
+            ("Tratamiento", datos_gui["Plan_Trabajo"]["Tratamiento"]),
+        ]
+
+        for campo, valor in campos_plan_trabajo:
+            if y_plan_trabajo - espacio_requerido < 0:
+                crear_nueva_pagina()  # Crear nueva página si no hay suficiente espacio
+                y_plan_trabajo = espacio_pagina
+
+            agregar_texto("{}: {}".format(campo, valor))
+            y_plan_trabajo -= espacio_requerido
+
+        # Campos adicionales relacionados con Examenes Auxiliares
+        y_examenes_auxiliares = y_plan_trabajo - espacio_requerido
+        campos_examenes_auxiliares = [
+            ("Laboratorio", datos_gui["Examenes_Auxiliares"]["Laboratorio"]),
+            ("Radiología", datos_gui["Examenes_Auxiliares"]["Radiologia"]),
+            ("Ecografía", datos_gui["Examenes_Auxiliares"]["Ecografia"]),
+            ("Otros", datos_gui["Examenes_Auxiliares"]["Otros"]),
+        ]
+
+        if y_examenes_auxiliares - espacio_requerido < 0:
+            crear_nueva_pagina()  # Crear nueva página si no hay suficiente espacio
+
+        agregar_texto("Examenes Auxiliares:")
+        for campo, valor in campos_examenes_auxiliares:
+            if y_examenes_auxiliares - espacio_requerido < 0:
+                crear_nueva_pagina()  
+                y_examenes_auxiliares = espacio_pagina
+
+            # Verificar si el valor es True antes de imprimir
+            if valor:
+                agregar_texto("{}".format(campo))
+            
+            y_examenes_auxiliares -= espacio_requerido
+
+        # Campos adicionales relacionados con Procedimientos
+        y_procedimientos = y_examenes_auxiliares - espacio_requerido
+        if y_procedimientos - espacio_requerido < 0:
+            crear_nueva_pagina()  # Crear nueva página si no hay suficiente espacio
+
+        agregar_texto("Procedimientos: {}".format(datos_gui["Procedimientos"]))
+
+        # Campos adicionales relacionados con Diagnóstico Final
+        y_diagnostico_final = y_procedimientos - espacio_requerido
+        campos_diagnostico_final = [
+            ("Diagnóstico Final", datos_gui["Diagnostico_Final"]),
+            ("COD CIE-10", datos_gui["COD_CIE_10f"]),  # Agregado el campo COD_CIE-10f
+        ]
+
+        for campo, valor in campos_diagnostico_final:
+            if y_diagnostico_final - espacio_requerido < 0:
+                crear_nueva_pagina()  # Crear nueva página si no hay suficiente espacio
+                y_diagnostico_final = espacio_pagina
+
+            agregar_texto("{}: {}".format(campo, valor))
+            y_diagnostico_final -= espacio_requerido
+
+        # Campos adicionales relacionados con Indicaciones
+        y_indicaciones = y_diagnostico_final - espacio_requerido
+        campos_indicaciones = [
+            ("Indicaciones", datos_gui["Indicaciones"]),
+        ]
+
+        for campo, valor in campos_indicaciones:
+            if y_indicaciones - espacio_requerido < 0:
+                crear_nueva_pagina()  # Crear nueva página si no hay suficiente espacio
+                y_indicaciones = espacio_pagina
+
+            agregar_texto("{}: {}".format(campo, valor))
+            y_indicaciones -= espacio_requerido
+
+        # Campos adicionales relacionados con Observaciones
+        y_observaciones = y_indicaciones - espacio_requerido
+        campos_observaciones = [
+            ("Observaciones", datos_gui["Observaciones"]),
+        ]
+
+        for campo, valor in campos_observaciones:
+            if y_observaciones - espacio_requerido < 0:
+                crear_nueva_pagina()  # Crear nueva página si no hay suficiente espacio
+                y_observaciones = espacio_pagina
+
+            agregar_texto("{}: {}".format(campo, valor))
+            y_observaciones -= espacio_requerido
+
+       # Campos adicionales relacionados con Destino
+        y_destino = y_observaciones - espacio_requerido
+        campos_destino = [
+            ("Alta", datos_gui["Destino"]["Alta"]),
+            ("Observación", datos_gui["Destino"]["Observacion"]),
+            ("Unidad Paciente Crítico", datos_gui["Destino"]["UPC"]),
+            ("Hospitalización", datos_gui["Destino"]["Hospitalizacion"]),
+            ("Centro Obstétrico", datos_gui["Destino"]["Centro_Obstetrico"]),
+            ("Centro Quirúrgico", datos_gui["Destino"]["Centro_Quirurgico"]),
+            ("Referencia/Transferencia", datos_gui["Destino"]["Referencia_Transferencia"]),
+            ("Lugar", datos_gui["Destino"]["Lugar"]),
+            ("Hora", datos_gui["Destino"]["Hora"]),
+            ("Retiro Voluntario", datos_gui["Destino"]["Retiro_Voluntario"]),
+            ("Fuga", datos_gui["Destino"]["Fuga"]),
+            ("Mortuorio", datos_gui["Destino"]["Mortuorio"]),
+            ("No Atendido", datos_gui["Destino"]["No_Atendido"]),
+        ]
+
+        if y_destino - espacio_requerido < 0:
+            crear_nueva_pagina()  # Crear nueva página si no hay suficiente espacio
+
+        agregar_texto("Destino:")
+
+        for campo, valor in campos_destino:
+            if valor:  # Solo imprimir si el valor es True
+                if y_destino - espacio_requerido < 0:
+                    crear_nueva_pagina()  # Crear nueva página si no hay suficiente espacio
+                    y_destino = espacio_pagina
+
+                if campo == "Observación":
+                    agregar_texto("{}({})".format(campo, valor))
+                elif campo in ["Lugar", "Hora"]:
+                    agregar_texto("{}: {}".format(campo, valor))
+                else:
+                    agregar_texto("{}".format(campo))
+                
+                y_destino -= espacio_requerido
+      
+       
+    def obtener_valor_seleccionado(self, diccionario):
+        # Si el diccionario está vacío o no es un diccionario, devolver una cadena vacía
+        if not diccionario or not isinstance(diccionario, dict):
+            return ""
+        
+        # Obtener la primera clave del diccionario (debería haber solo una clave)
+        clave = next(iter(diccionario.keys()), '')
+
+        # Si la clave es True, devolver la clave; de lo contrario, devolver una cadena vacía
+        return clave if diccionario[clave] else ""
+
+    #funcion utilizada para obtiene datos de la ventana de la ficha del diagnostico
+    def obtener_datos(self):
+        datos = {}
+
+        # Campos relacionados con el paciente
+        datos['Diagnostico_Medico'] = self.lblDM.cget('text')
+        datos['Paciente'] = self.svPaci.get()
+        datos['Edad'] = self.svEdad.get()
+        datos['Sexo'] = self.svSex.get()
+        datos['Direccion'] = self.svDir.get()
+        datos['Distrito'] = self.svDis.get()
+        datos['Responsable'] = self.svResp.get()
+        datos['Modo_Ingreso'] = self.svMI.get()
+        datos['DNI'] = self.svDNI.get()
+        datos['Tipo_AccidenteP'] = self.svTrans.get()
+        datos['Tipo_Seg'] = self.svTseg.get()
+        datos['Telefono'] = self.svTel.get()
+        datos['Ficha'] = self.svFicha.get()
+        datos['Fecha_P'] = self.svfechaP.get()
+        datos['Hora_P'] = self.svHoraP.get()
+        datos['Historia'] = self.svHistoria.get()
+        # Campos relacionados con especialidades
+        especialidades = {key: value.get() for key, value in {
+            'Medicina': self.svMedicina,
+            'Pediatria': self.svPediatria,
+            'Cirugia': self.svCirugia,
+            'Gineco_OBS': self.svGineco_OBS,
+        }.items() if value.get()}
+
+        # Asegúrate de que el diccionario no esté vacío antes de agregarlo a los datos
+        if especialidades:
+            datos['Especialidad'] = especialidades
+        else:
+            datos['Especialidad'] = None  # O cualquier valor predeterminado que desees
+
+
+        # Campos adicionales relacionados con el accidente
+        datos['Prioridad_Daño'] = {key: value.get() for key, value in {
+            'Prioridad1': self.svPriorid1,
+            'Prioridad2': self.svPriorid2,
+            'Prioridad3': self.svPriorid3,
+            'Prioridad4': self.svPriorid4,
+        }.items() if value.get()}
+
+        datos['Tipo_Accidente'] = {key: value.get() for key, value in {
+            'Atropello': self.svAtrop,
+            'Choque': self.svChoque,
+            'Despiste': self.svDespiste,
+            'Incendio': self.svIncendio,
+            'Atropello_y_Fuga': self.svAyF,
+            'Choque_y_Fuga': self.svCyF,
+            'Caida_de_Pasajeros': self.svCaidaP,
+            'Volcadura': self.svVolcadura,
+        }.items() if value.get()}
+
+        datos['Otros_Accidente'] = self.svOtrosAT.get()
+        datos['Fecha_Accidente'] = self.svFechaAT.get()
+        datos['Hora_Accidente'] = self.svHoraAT.get()
+
+        # Campos relacionados con ANAMNESIS
+        datos['Tiempo_Enfermedad'] = self.svTipoE.get()
+        datos['Motivo_Consulta'] = self.svMC.get()
+        datos['Antecedentes'] = self.svAntecedentes.get()
+
+        # Campos relacionados con Examen Clínico
+        datos['P.A'] = self.svPA.get()
+        datos['FC'] = self.svFC.get()
+        datos['FR'] = self.svFR.get()
+        datos['Tº'] = self.svTº.get()
+        datos['SO'] = self.svSO.get()
+        datos['Peso'] = self.svPeso.get()
+
+        # Campos relacionados con el examen preferencial
+        datos['Examen_Preferencial'] = self.svExamenP.get()
+
+        # Campos relacionados con Diagnóstico de Ingreso
+        datos['Diagnostico_Ingreso'] = self.svDdi.get()
+        datos['COD_CIE_10'] = self.svCodCie.get()
+
+        # Campos relacionados con Plan de Trabajo
+        datos['Plan_Trabajo'] = {
+            'Hidratacion': 'Si' if self.svHidratS.get() else 'No',
+            'Tratamiento': self.entryTratam.get("1.0", "end-1c") if self.svHidratS.get() else '',
+        }
+
+        # Campos relacionados con exámenes auxiliares
+        datos['Examenes_Auxiliares'] = {
+        'Laboratorio': self.svLaboratorio.get(),
+        'Radiologia': self.svRadiología.get(),  # Corregir el nombre aquí
+        'Ecografia': self.svEcografía.get(),
+        'Otros': self.svOtros.get(),
+        }
+
+        # Campos relacionados con Procedimientos
+        datos['Procedimientos'] = self.entryProcedimientos.get("1.0", "end-1c")
+
+        # Campos relacionados con Diagnóstico Final
+        datos['Diagnostico_Final'] = self.svDF.get()
+        datos['COD_CIE_10f'] = self.svCodCief.get()
+
+        # Campos relacionados con Indicaciones
+        datos['Indicaciones'] = self.entryIndicaciones.get("1.0", "end-1c")
+
+        # Campos relacionados con Observaciones
+        datos['Observaciones'] = self.entryObservaciones.get("1.0", "end-1c")
+
+        # Campos relacionados con destino
+        datos['Destino'] = {
+            'Alta': self.svAlta.get(),
+            'Observacion': self.svObservación.get(),
+            'UPC': self.svUPC.get(),
+            'Hospitalizacion': self.svHospitalización.get(),
+            'Centro_Obstetrico': self.svCObs.get(),
+            'Centro_Quirurgico': self.svCquir.get(),
+            'Referencia_Transferencia': self.svR_Trans.get(),
+            'Lugar': self.svLugar.get(),
+            'Hora': self.svHoraD.get(),
+            'Retiro_Voluntario': self.svRetVol.get(),
+            'Fuga': self.svFuga.get(),
+            'Mortuorio': self.svMortuorio.get(),
+            'No_Atendido': self.svNAtend.get(),
+        }
+
+        datos['Firma_Medico_Responsable'] = {
+            'Firma': self.contenedor_MedRes,  
+        }
+        return datos
+
+    #funcion utilizada para guardar ficha del diagnostico
+    def guardar_pdf(self, datos, file_path):
+        # Crear un nuevo PDF
+        c = canvas.Canvas(file_path, pagesize=letter)
+
+        # Agregar texto al PDF usando los datos proporcionados
+        c.drawString(100, 750, "Diagnóstico Médico: {}".format(datos["Diagnostico_Medico"]))
+        c.drawString(100, 730, "Paciente: {}".format(datos["Paciente"]))
+
+        # Campos adicionales relacionados con el paciente
+        y_paciente = 710
+        campos_paciente = [
+            ("Edad", datos["Edad"]),
+            ("Sexo", datos["Sexo"]),
+            ("Dirección", datos["Direccion"]),
+            ("Distrito", datos["Distrito"]),
+            ("Responsable", datos["Responsable"]),
+            ("Modo de Ingreso", datos["Modo_Ingreso"]),
+            ("DNI", datos["DNI"]),
+            ("Tipo de Accidente", datos["Tipo_AccidenteP"] or ""),  # Corregido el nombre de la clave
+            ("Tipo de Seguro", datos["Tipo_Seg"]),
+            ("Teléfono", datos["Telefono"]),
+            ("Ficha", datos["Ficha"]),
+            ("Fecha de Presentación", datos["Fecha_P"]),
+            ("Hora de Presentación", datos["Hora_P"]),
+            ("Historia", datos["Historia"]),
+            ("Especialidad", datos.get("Especialidad", "")),  # Asegurarse de manejar el caso en que no haya especialidad
+        ]
+
+        for campo, valor in campos_paciente:
+            c.drawString(100, y_paciente, "{}: {}".format(campo, valor))
+            y_paciente -= 20
+
+        # Campos adicionales relacionados con el accidente
+        y_accidente = y_paciente - 20
+        campos_accidente = [
+            ("Prioridad de Daño", datos["Prioridad_Daño"]or ""),
+            ("Tipo de Accidente", datos["Tipo_Accidente"]or ""),
+            ("Otros Accidentes", datos["Otros_Accidente"]),
+            ("Fecha del Accidente", datos["Fecha_Accidente"]),
+            ("Hora del Accidente", datos["Hora_Accidente"]),
+        ]
+
+        for campo, valor in campos_accidente:
+            c.drawString(100, y_accidente, "{}: {}".format(campo, valor))
+            y_accidente -= 20
+
+        # Campos adicionales relacionados con ANAMNESIS
+        y_anamnesis = y_accidente - 20
+        campos_anamnesis = [
+            ("Tiempo de Enfermedad", datos["Tiempo_Enfermedad"]),
+            ("Motivo de Consulta", datos["Motivo_Consulta"]),
+            ("Antecedentes", datos["Antecedentes"]),
+        ]
+
+        for campo, valor in campos_anamnesis:
+            c.drawString(100, y_anamnesis, "{}: {}".format(campo, valor))
+            y_anamnesis -= 20
+
+        # Campos adicionales relacionados con Examen Clínico
+        y_examen_clinico = y_anamnesis - 20
+        campos_examen_clinico = [
+            ("P.A", datos["P.A"]),
+            ("FC", datos["FC"]),
+            ("FR", datos["FR"]),
+            ("Tº", datos["Tº"]),
+            ("SO", datos["SO"]),
+            ("Peso", datos["Peso"]),
+        ]
+
+        for campo, valor in campos_examen_clinico:
+            c.drawString(100, y_examen_clinico, "{}: {}".format(campo, valor))
+            y_examen_clinico -= 20
+
+        # Campos adicionales relacionados con el examen preferencial
+        y_examen_preferencial = y_examen_clinico - 20
+        c.drawString(100, y_examen_preferencial, "Examen Preferencial: {}".format(datos["Examen_Preferencial"]))
+
+        # Campos adicionales relacionados con Diagnóstico de Ingreso
+        y_diagnostico_ingreso = y_examen_preferencial - 20
+        c.drawString(100, y_diagnostico_ingreso, "Diagnóstico de Ingreso: {}".format(datos["Diagnostico_Ingreso"]))
+        c.drawString(100, y_diagnostico_ingreso - 20, "COD CIE-10: {}".format(datos["COD_CIE_10"]))
+
+        # Campos adicionales relacionados con Plan de Trabajo
+        y_plan_trabajo = y_diagnostico_ingreso - 40
+        campos_plan_trabajo = [
+            ("Hidratación", datos["Plan_Trabajo"]["Hidratacion"]),
+            ("Tratamiento", datos["Plan_Trabajo"]["Tratamiento"]),
+        ]
+
+        for campo, valor in campos_plan_trabajo:
+            c.drawString(100, y_plan_trabajo, "{}: {}".format(campo, valor))
+            y_plan_trabajo -= 20
+
+        # Campos adicionales relacionados con Examenes Auxiliares
+        y_examenes_auxiliares = y_plan_trabajo - 20
+        campos_examenes_auxiliares = [
+            ("Laboratorio", datos["Examenes_Auxiliares"]["Laboratorio"]),
+            ("Radiología", datos["Examenes_Auxiliares"]["Radiologia"]),
+            ("Ecografía", datos["Examenes_Auxiliares"]["Ecografia"]),
+            ("Otros", datos["Examenes_Auxiliares"]["Otros"]),
+        ]
+
+        c.drawString(100, y_examenes_auxiliares, "Examenes Auxiliares:")
+        for campo, valor in campos_examenes_auxiliares:
+            c.drawString(120, y_examenes_auxiliares - 20, "{}: {}".format(campo, valor))
+            y_examenes_auxiliares -= 20
+
+        # Campos adicionales relacionados con Procedimientos
+        y_procedimientos = y_examenes_auxiliares - 20
+        c.drawString(100, y_procedimientos, "Procedimientos: {}".format(datos["Procedimientos"]))
+
+        # Campos adicionales relacionados con Diagnóstico Final
+        y_diagnostico_final = y_procedimientos - 20
+        campos_diagnostico_final = [
+            ("Diagnóstico Final", datos["Diagnostico_Final"]),
+            ("COD CIE-10f", datos["COD_CIE_10f"]),  # Agregado el campo COD_CIE-10f
+        ]
+
+        for campo, valor in campos_diagnostico_final:
+            c.drawString(100, y_diagnostico_final, "{}: {}".format(campo, valor))
+            y_diagnostico_final -= 20
+
+        # Campos adicionales relacionados con Indicaciones
+        y_indicaciones = y_diagnostico_final - 20
+        campos_indicaciones = [
+            ("Indicaciones", datos["Indicaciones"]),
+        ]
+
+        for campo, valor in campos_indicaciones:
+            c.drawString(100, y_indicaciones, "{}: {}".format(campo, valor))
+            y_indicaciones -= 20
+
+        # Campos adicionales relacionados con Observaciones
+        y_observaciones = y_indicaciones - 20
+        campos_observaciones = [
+            ("Observaciones", datos["Observaciones"]),
+        ]
+
+        for campo, valor in campos_observaciones:
+            c.drawString(100, y_observaciones, "{}: {}".format(campo, valor))
+            y_observaciones -= 20
+
+        # Campos adicionales relacionados con Destino
+        y_destino = y_observaciones - 20
+        campos_destino = [
+            ("Alta", datos["Destino"]["Alta"]),
+            ("Observación", datos["Destino"]["Observacion"]),
+            ("UPC", datos["Destino"]["UPC"]),
+            ("Hospitalización", datos["Destino"]["Hospitalizacion"]),
+            ("Centro Obstétrico", datos["Destino"]["Centro_Obstetrico"]),
+            ("Centro Quirúrgico", datos["Destino"]["Centro_Quirurgico"]),
+            ("Referencia/Transferencia", datos["Destino"]["Referencia_Transferencia"]),
+            ("Lugar", datos["Destino"]["Lugar"]),
+            ("Hora", datos["Destino"]["Hora"]),
+            ("Retiro Voluntario", datos["Destino"]["Retiro_Voluntario"]),
+            ("Fuga", datos["Destino"]["Fuga"]),
+            ("Mortuorio", datos["Destino"]["Mortuorio"]),
+            ("No Atendido", datos["Destino"]["No_Atendido"]),
+        ]
+
+        c.drawString(100, y_destino, "Destino:")
+        for campo, valor in campos_destino:
+            c.drawString(120, y_destino - 20, "{}: {}".format(campo, valor))
+            y_destino -= 20
+        
+        # Guardar el PDF
+        c.save()
+
+    #funcion utilizada para crear ventana de la receta
+    def abrir_nueva_ventana(self):
+        nueva_ventana = tk.Toplevel(self.root)
+        nueva_ventana.title("Diagnostico")
+        nueva_ventana.geometry("520x600")
+
+        # Centrar la ventana en la pantalla
+        nueva_ventana.update_idletasks()
+        width = nueva_ventana.winfo_width()
+        height = nueva_ventana.winfo_height()
+        x = (nueva_ventana.winfo_screenwidth() // 2) - (width // 2)
+        y = (nueva_ventana.winfo_screenheight() // 2) - (height // 2)
+        nueva_ventana.geometry(f"{width}x{height}+{x}+{y}")
+        
+        main_frame = tk.Frame(nueva_ventana, padx=10, pady=10)
+        main_frame.grid(row=0, column=0)
+
+        # Obtener valores de las variables
+        paciente =self.svPaci.get()
+        edad = self.svEdad.get()
+        sexo = self.svSex.get()
+        direccion = self.svDir.get()
+        distrito = self.svDis.get()
+        responsable = self.svResp.get()
+        telefono = self.svTel.get()
+        ficha = self.svFicha.get()
+        fecha = self.svfechaP.get()
+        hora = self.svHoraP.get()
+        
+
+        # Etiquetas para los campos básicos
+        tk.Label(main_frame, text=f'Paciente: {paciente}').grid(row=0, column=2, sticky="w", padx=10, pady=5)
+        tk.Label(main_frame, text=f'Edad: {edad}').grid(row=1, column=2, sticky="w", padx=10, pady=5)
+        tk.Label(main_frame, text=f'Sexo: {sexo}').grid(row=1, column=3, sticky="w", padx=10, pady=5)
+        tk.Label(main_frame, text=f'Dirección: {direccion}').grid(row=1, column=4, sticky="w", padx=10, pady=5)
+        tk.Label(main_frame, text=f'Distrito: {distrito}').grid(row=2, column=2, sticky="w", padx=10, pady=5)
+        tk.Label(main_frame, text=f'Responsable: {responsable}').grid(row=2, column=3, sticky="w", padx=10, pady=5)
+        tk.Label(main_frame, text=f'Telefono: {telefono}').grid(row=2, column=4, sticky="w")
+        tk.Label(main_frame, text=f'Ficha: {ficha}').grid(row=3, column=2, sticky="w", padx=10, pady=5)
+        tk.Label(main_frame, text=f'Fecha: {fecha}').grid(row=3, column=3, sticky="w", padx=10, pady=5)
+        tk.Label(main_frame, text=f'Hora: {hora}').grid(row=3, column=4, sticky="w", padx=10, pady=5)
+        
+        # Etiquetas para los campos de Especialidad
+        especialidades = []
+        if self.svMedicina.get():
+            especialidades.append("Medicina")
+        if self.svPediatria.get():
+            especialidades.append("Pediatria")
+        if self.svCirugia.get():
+            especialidades.append("Cirugia")
+        if self.svGineco_OBS.get():
+            especialidades.append("Gineco OBS")
+
+        tk.Label(main_frame, text=f'Especialidad: {", ".join(especialidades)}').grid(row=4, column=2, columnspan=3, sticky="w", padx=10, pady=20)
+
+        # Etiquetas para los campos de signos vitales
+        tk.Label(main_frame, text=f'P.A: {self.svPA.get()}').grid(row=5, column=2, sticky="w", padx=10, pady=5)
+        tk.Label(main_frame, text=f'FC: {self.svFC.get()}').grid(row=5, column=3, sticky="w", padx=10, pady=5)
+        tk.Label(main_frame, text=f'FR: {self.svFR.get()}').grid(row=5, column=4, sticky="w", padx=10, pady=5)
+        tk.Label(main_frame, text=f'Temp: {self.svTº.get()}').grid(row=6, column=2, sticky="w", padx=10, pady=5)
+        tk.Label(main_frame, text=f'SO: {self.svSO.get()}').grid(row=6, column=3, sticky="w", padx=10, pady=5)
+        tk.Label(main_frame, text=f'Peso: {self.svPeso.get()}').grid(row=6, column=4, sticky="w", padx=10, pady=5)
+
+        # Etiquetas para los campos de texto
+        tk.Label(main_frame, text=f'Tratamiento:').grid(row=7, column=0, sticky="w")
+        tratamiento_text = self.entryTratam.get("1.0", tk.END).strip()
+        tk.Label(main_frame, text=tratamiento_text).grid(row=8, column=0, sticky="w")
+
+        tk.Label(main_frame, text='Procedimientos:').grid(row=9, column=0, sticky="w")
+        procedimientos_text = self.entryProcedimientos.get("1.0", tk.END).strip()
+        tk.Label(main_frame, text=procedimientos_text).grid(row=10, column=0, sticky="w")
+
+        tk.Label(main_frame, text='Indicaciones:').grid(row=11, column=0, sticky="w")
+        indicaciones_text = self.entryIndicaciones.get("1.0", tk.END).strip()
+        tk.Label(main_frame, text=indicaciones_text).grid(row=12, column=0, sticky="w")
+
+        tk.Label(main_frame, text='Observaciones:').grid(row=13, column=0, sticky="w")
+        observaciones_text = self.entryObservaciones.get("1.0", tk.END).strip()
+        tk.Label(main_frame, text=observaciones_text).grid(row=14, column=0, sticky="w")
+
+        tk.Button(nueva_ventana, text="Guardar", command=self.guardar_datosPdf, width=12, font=('Arial', 10, 'bold'), fg='#FFFEFE', bg='#0F1010', cursor='hand2', activebackground='#FFFEFE').grid(row=15, column=0, pady=5)
+        tk.Button(nueva_ventana, text="Cerrar", command=nueva_ventana.destroy, width=12, font=('Arial', 10, 'bold'), fg='#FFFEFE', bg='#CF811E', cursor='hand2', activebackground='#E72D40').grid(row=17, column=0, pady=5)
+
+    #funcion utilizada para crear especialidades en la receta
+    def get_especialidades(self):
+        especialidades = []
+        if self.svMedicina.get():
+            especialidades.append("Medicina")
+        if self.svPediatria.get():
+            especialidades.append("Pediatria")
+        if self.svCirugia.get():
+            especialidades.append("Cirugia")
+        if self.svGineco_OBS.get():
+            especialidades.append("Gineco OBS")
+        return especialidades
+    
+    #funcion utilizada para guardar la receta
+    def guardar_datosPdf(self):
+        try:
+            # Crear un gráfico con los datos
+            fig, ax = plt.subplots(figsize=(8, 6))
+            ax.text(0.5, 0.5, "Datos de la Receta Médica:\n\n" +
+                    f"Paciente: {self.svPaci.get()}\n" +
+                    f"Edad: {self.svEdad.get()}\n" +
+                    f"Sexo: {self.svSex.get()}\n" +
+                    f"Dirección: {self.svDir.get()}\n" +
+                    f"Distrito: {self.svDis.get()}\n" +
+                    f"Responsable: {self.svResp.get()}\n" +
+                    f"Teléfono: {self.svTel.get()}\n" +
+                    f"Ficha: {self.svFicha.get()}\n" +
+                    f"Fecha: {self.svfechaP.get()}\n" +
+                    f"Hora: {self.svHoraP.get()}\n" +
+                    f"Especialidad: {', '.join(self.get_especialidades())}\n" +
+                    f"P.A: {self.svPA.get()}\n" +
+                    f"FC: {self.svFC.get()}\n" +
+                    f"FR: {self.svFR.get()}\n" +
+                    f"Temp: {self.svTº.get()}\n" +
+                    f"SO: {self.svSO.get()}\n" +
+                    f"Peso: {self.svPeso.get()}\n" +
+                    f"Tratamiento:\n{self.entryTratam.get('1.0', tk.END).strip()}\n" +
+                    f"Procedimientos:\n{self.entryProcedimientos.get('1.0', tk.END).strip()}\n" +
+                    f"Indicaciones:\n{self.entryIndicaciones.get('1.0', tk.END).strip()}\n" +
+                    f"Observaciones:\n{self.entryObservaciones.get('1.0', tk.END).strip()}", 
+                    fontsize=12, ha='center', va='center')
+
+            ax.axis('off')
+
+            # Obtener una ruta para guardar el archivo PDF
+            ruta_archivo = filedialog.asksaveasfilename(defaultextension=".pdf", filetypes=[("Archivos PDF", "*.pdf")])
+
+            if not ruta_archivo:
+                plt.close()  # Cerrar la ventana de vista previa
+                return  # El usuario canceló el diálogo de guardado
+
+                # Guardar el gráfico en el PDF
+            with PdfPages(ruta_archivo) as pdf:
+                pdf.savefig(fig)
+                plt.close()  # Cerrar la ventana de vista previa
+
+            messagebox.showinfo("Imprimir", f"Datos guardados exitosamente en '{ruta_archivo}'.")
+        except Exception as e:
+            messagebox.showerror("Error", f"Ocurrió un error al imprimir los datos: {str(e)}")
+
+    #funcion utilizada para guardar especialidades en pdf de la receta 
+    def imprimir_ventana(self):
+        # Obtén la posición y dimensiones de la ventana
+        x = self.root.winfo_rootx()
+        y = self.root.winfo_rooty()
+        w = self.root.winfo_width()
+        h = self.root.winfo_height()
+
+        # Captura el contenido de la ventana como una imagen
+        imagen = ImageGrab.grab(bbox=(x, y, x + w, y + h))
+
+        # Genera un nombre único con la fecha y hora actual
+        fecha_actual = datetime.now().strftime("%Y%m%d_%H%M%S")
+        nombre_archivo = f"Ventana_Imprimida_{fecha_actual}.png"
+
+        # Guarda la imagen
+        imagen.save(nombre_archivo)
+
+        print(f"Ventana impresa y guardada como '{nombre_archivo}'.")
+
+    def cerrar_ventana(self):
+    # Cierra la ventana principal
+        self.root.destroy()
 
 root = tk.Tk()
 ventana = VentanaDiagnosticoMedico(root)

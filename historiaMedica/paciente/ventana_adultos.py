@@ -170,7 +170,7 @@ class VentanaAdultos(tk.Frame):
 
     def crear_tabla(self):
         # Crear la tabla con el widget Treeview
-        self.tabla = ttk.Treeview(self.frame_tabla, columns=("HC", "Fecha", "Edad", "Sexo", "Nombre", "Apellido", "FechaN", "DNI", "Telefono"))
+        self.tabla = ttk.Treeview(self.frame_tabla, columns=("HC", "Fecha", "Edad", "Sexo", "Nombre", "Apellido", "FechaN", "Telefono", "DNI"))
 
         # Definir encabezados
         self.tabla.heading("#0", text="ID")
@@ -181,8 +181,8 @@ class VentanaAdultos(tk.Frame):
         self.tabla.heading("Nombre", text="Nombre")
         self.tabla.heading("Apellido", text="Apellido")
         self.tabla.heading("FechaN", text="Fecha de Nacimiento")
-        self.tabla.heading("DNI", text="DNI")
         self.tabla.heading("Telefono", text="Teléfono")
+        self.tabla.heading("DNI", text="DNI")
 
         # Configurar las columnas
         self.tabla.column("#0", stretch=tk.NO, width=0)  # ID
@@ -193,8 +193,9 @@ class VentanaAdultos(tk.Frame):
         self.tabla.column("Nombre", anchor=tk.W, width=100)
         self.tabla.column("Apellido", anchor=tk.W, width=100)
         self.tabla.column("FechaN", anchor=tk.CENTER, width=100)
-        self.tabla.column("DNI", anchor=tk.CENTER, width=80)
         self.tabla.column("Telefono", anchor=tk.CENTER, width=80)
+        self.tabla.column("DNI", anchor=tk.CENTER, width=80)
+        
 
         # Configurar la barra de desplazamiento
         scrollbar_y = ttk.Scrollbar(self.frame_tabla, orient="vertical", command=self.tabla.yview)
@@ -252,11 +253,12 @@ class VentanaAdultos(tk.Frame):
             nombre = self.svNombre.get()
             apellido = self.svApellido.get()
             fecha_nacimiento = self.svFechaN.get()
-            dni = self.svDNI.get()
             telefono = self.svtelef.get()
+            dni = self.svDNI.get()
+           
 
             # Validar campos antes de guardar
-            if not hc or not fecha or not edad or not sexo or not nombre or not apellido or not fecha_nacimiento or not dni or not telefono:
+            if not hc or not fecha or not edad or not sexo or not nombre or not apellido or not fecha_nacimiento or not telefono or not dni:
                 messagebox.showwarning("Advertencia", "Todos los campos son obligatorios.")
                 return
 
@@ -268,8 +270,8 @@ class VentanaAdultos(tk.Frame):
                 'Nombre': nombre,
                 'Apellido': apellido,
                 'FechaN': fecha_nacimiento,
-                'DNI': dni,
-                'Telefono': telefono
+                'Telefono': telefono,
+                'DNI': dni
             }
 
             # Verificar si ya existe un paciente con la misma Historia Clínica
@@ -281,12 +283,12 @@ class VentanaAdultos(tk.Frame):
             self.datos_originales.append(nuevo_paciente)
 
             # Insertar en la tabla y guardar en el archivo CSV
-            row_data = [nuevo_paciente[field] for field in ['HC', 'Fecha', 'Edad', 'Sexo', 'Nombre', 'Apellido', 'FechaN', 'DNI', 'Telefono']]
+            row_data = [nuevo_paciente[field] for field in ['HC', 'Fecha', 'Edad', 'Sexo', 'Nombre', 'Apellido', 'FechaN', 'Telefono', 'DNI']]
             self.tabla.insert("", "end", values=row_data, tags=(hc,))
             self.guardar_en_csv(row_data)
 
             # Limpiar los campos después de guardar
-            for entry in [self.entryHC, self.entryfecha, self.entryedad, self.entryNombre, self.entryApellido, self.entryFechaN, self.entryDNI, self.entrytelef]:
+            for entry in [self.entryHC, self.entryfecha, self.entryedad, self.entryNombre, self.entryApellido, self.entryFechaN, self.entrytelef, self.entryDNI]:
                 entry.delete(0, tk.END)
 
             self.checkbox_masculino.deselect()
@@ -333,8 +335,8 @@ class VentanaAdultos(tk.Frame):
                         'Nombre': row[4],
                         'Apellido': row[5],
                         'FechaN': row[6],
-                        'DNI': row[7],
-                        'Telefono': row[8]
+                        'Telefono': row[7],
+                        'DNI': row[8] 
                     })
 
         except FileNotFoundError:
@@ -376,7 +378,7 @@ class VentanaAdultos(tk.Frame):
         if pacientes_encontrados:
             # Insertar los pacientes encontrados en la tabla
             for paciente_encontrado in pacientes_encontrados:
-                row_data = [paciente_encontrado[field] for field in ['HC', 'Fecha', 'Edad', 'Sexo', 'Nombre', 'Apellido', 'FechaN', 'DNI', 'Telefono']]
+                row_data = [paciente_encontrado[field] for field in ['HC', 'Fecha', 'Edad', 'Sexo', 'Nombre', 'Apellido', 'FechaN', 'Telefono', 'DNI']]
                 self.tabla.insert("", "end", values=row_data, tags=(hc_buscar,))
         else:
             messagebox.showinfo("Información", "No se encontraron resultados para la Historia Clínica proporcionada.")
@@ -397,7 +399,7 @@ class VentanaAdultos(tk.Frame):
         if pacientes_encontrados:
             # Insertar los pacientes encontrados en la tabla
             for paciente_encontrado in pacientes_encontrados:
-                row_data = [paciente_encontrado[field] for field in ['HC', 'Fecha', 'Edad', 'Sexo', 'Nombre', 'Apellido', 'FechaN', 'DNI', 'Telefono']]
+                row_data = [paciente_encontrado[field] for field in ['HC', 'Fecha', 'Edad', 'Sexo', 'Nombre', 'Apellido', 'FechaN', 'Telefono', 'DNI']]
                 self.tabla.insert("", "end", values=row_data, tags=(dni_buscar,))
         else:
             messagebox.showinfo("Información", "No se encontraron resultados para el DNI proporcionado.")
@@ -416,7 +418,6 @@ class VentanaAdultos(tk.Frame):
                 (not dni_buscar or dni_fila == dni_buscar)):
                 self.tabla.insert("", "end", values=datos_fila, tags=(datos_fila[0],))
 
-    
 
 if __name__ == "__main__":
     root = tk.Tk()

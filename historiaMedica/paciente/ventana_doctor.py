@@ -395,12 +395,12 @@ class VentanaDiagnosticoMedico(tk.Frame):
         self.entryFR = tk.Entry(self.scrollable_frame, textvariable=self.svFR, width=10, font=('ARIAL', 10,'bold'))
         self.entryFR.grid(column=3, row=20, padx=(10,0), pady=5)
 
-        self.lblTº = tk.Label(self.scrollable_frame, text='Temp ', font=('ARIAL', 10, 'bold'),fg='black', bg='#8C9BBA')
-        self.lblTº.grid(column=4, row=20, padx=(0,90), pady=5)
+        self.lblTemp = tk.Label(self.scrollable_frame, text='Tº ', font=('ARIAL', 10, 'bold'),fg='black', bg='#8C9BBA')
+        self.lblTemp.grid(column=4, row=20, padx=(0,90), pady=5)
 
-        self.svTº = tk.StringVar()
-        self.entryTº = tk.Entry(self.scrollable_frame, textvariable=self.svTº, width=10, font=('ARIAL', 10,'bold'))
-        self.entryTº.grid(column=4, row=20, padx=(10,0), pady=5)
+        self.svTemp = tk.StringVar()
+        self.entryTemp = tk.Entry(self.scrollable_frame, textvariable=self.svTemp, width=10, font=('ARIAL', 10,'bold'))
+        self.entryTemp.grid(column=4, row=20, padx=(10,0), pady=5)
 
         self.lblSO = tk.Label(self.scrollable_frame, text='SO ', font=('ARIAL', 10, 'bold'),fg='black', bg='#8C9BBA')
         self.lblSO.grid(column=5, row=20, padx=(0,90), pady=5)
@@ -587,7 +587,7 @@ class VentanaDiagnosticoMedico(tk.Frame):
         self.entryNAtend = tk.Checkbutton(self.scrollable_frame, text="No Atendido", variable=self.svNAtend, width=20, font=('ARIAL', 10, 'bold'),fg='black', bg='#8C9BBA')
         self.entryNAtend.grid(column=5, row=51, padx=0, pady=5)
 
-        self.lblMedRes = tk.Label(self.scrollable_frame, text='Firma del medico responsable: ', font=('ARIAL', 10, 'bold','underline'), underline=6, fg='black', bg='#8C9BBA')
+        self.lblMedRes = tk.Label(self.scrollable_frame, text='Firma y Nombre del medico responsable: ', font=('ARIAL', 10, 'bold','underline'), underline=6, fg='black', bg='#8C9BBA')
         self.lblMedRes.grid(column=3, row=54, padx=0, pady=5)
 
         self.contenedor_MedRes = tk.Label(self.scrollable_frame, bg='#ffffff')
@@ -600,6 +600,9 @@ class VentanaDiagnosticoMedico(tk.Frame):
         imagen_firma = Image.open(ruta_firma)
         self.mostrar_imagen_en_label(imagen_firma, self.contenedor_MedRes)
 
+        self.svMedRes = tk.StringVar()
+        self.entryMedRes = tk.Entry(self.scrollable_frame, textvariable=self.svMedRes, width=30, font=('ARIAL', 10,'bold'))
+        self.entryMedRes.grid(column=4, row=54, padx=5, pady=5, columnspan=7, rowspan=2)
 
         self.lblExaAdi = tk.Label(self.scrollable_frame, text='Examenes Adicionales: ', font=('ARIAL', 10, 'bold'), fg='black', bg='#8C9BBA')
         self.lblExaAdi.grid(column=2, row=57, padx=0, pady=5)
@@ -698,6 +701,20 @@ class VentanaDiagnosticoMedico(tk.Frame):
 
             agregar_texto("{}: {}".format(campo, valor))
             y_paciente -= espacio_requerido
+
+        # Lista de especialidades y variables booleanas
+        especialidades = [
+            ("Medicina", self.svMedicina),
+            ("Pediatria", self.svPediatria),
+            ("Cirugia", self.svCirugia),
+            ("Gineco OBS", self.svGineco_OBS),
+            # Agrega más especialidades si es necesario
+        ]
+
+        # Iterar sobre la lista de especialidades para agregar al PDF
+        for especialidad, variable in especialidades:
+            if variable.get():
+                agregar_texto("Especialidad: {}".format(especialidad))
 
         # Campos adicionales relacionados con el accidente
         y_accidente = y_paciente - espacio_requerido
@@ -858,19 +875,19 @@ class VentanaDiagnosticoMedico(tk.Frame):
        # Campos adicionales relacionados con Destino
         y_destino = y_observaciones - espacio_requerido
         campos_destino = [
-            ("Alta", datos_gui["Destino"]["Alta"]),
-            ("Observación", datos_gui["Destino"]["Observacion"]),
-            ("Unidad Paciente Crítico", datos_gui["Destino"]["UPC"]),
-            ("Hospitalización", datos_gui["Destino"]["Hospitalizacion"]),
-            ("Centro Obstétrico", datos_gui["Destino"]["Centro_Obstetrico"]),
-            ("Centro Quirúrgico", datos_gui["Destino"]["Centro_Quirurgico"]),
-            ("Referencia/Transferencia", datos_gui["Destino"]["Referencia_Transferencia"]),
-            ("Lugar", datos_gui["Destino"]["Lugar"]),
-            ("Hora", datos_gui["Destino"]["Hora"]),
-            ("Retiro Voluntario", datos_gui["Destino"]["Retiro_Voluntario"]),
-            ("Fuga", datos_gui["Destino"]["Fuga"]),
-            ("Mortuorio", datos_gui["Destino"]["Mortuorio"]),
-            ("No Atendido", datos_gui["Destino"]["No_Atendido"]),
+            ("Alta", datos_gui["Destino"].get("Alta", "")),
+            ("Observación", datos_gui["Destino"].get("Observacion", "")),
+            ("Unidad Paciente Crítico", datos_gui["Destino"].get("UPC", "")),
+            ("Hospitalización", datos_gui["Destino"].get("Hospitalizacion", "")),
+            ("Centro Obstétrico", datos_gui["Destino"].get("Centro_Obstetrico", "")),
+            ("Centro Quirúrgico", datos_gui["Destino"].get("Centro_Quirurgico", "")),
+            ("Referencia/Transferencia", datos_gui["Destino"].get("Referencia_Transferencia", "")),
+            ("Lugar", datos_gui["Destino"].get("Lugar", "")),
+            ("Hora", datos_gui["Destino"].get("Hora", "")),
+            ("Retiro Voluntario", datos_gui["Destino"].get("Retiro_Voluntario", "")),
+            ("Fuga", datos_gui["Destino"].get("Fuga", "")),
+            ("Mortuorio", datos_gui["Destino"].get("Mortuorio", "")),
+            ("No Atendido", datos_gui["Destino"].get("No_Atendido", "")),
         ]
 
         if y_destino - espacio_requerido < 0:
@@ -885,7 +902,7 @@ class VentanaDiagnosticoMedico(tk.Frame):
                     y_destino = espacio_pagina
 
                 if campo == "Observación":
-                    agregar_texto("{}({})".format(campo, valor))
+                    agregar_texto("{}".format(campo, valor))
                 elif campo in ["Lugar", "Hora"]:
                     agregar_texto("{}: {}".format(campo, valor))
                 else:
@@ -893,7 +910,10 @@ class VentanaDiagnosticoMedico(tk.Frame):
                 
                 y_destino -= espacio_requerido
       
-       
+
+        # Guardar el PDF
+        c.save()
+
     def obtener_valor_seleccionado(self, diccionario):
         # Si el diccionario está vacío o no es un diccionario, devolver una cadena vacía
         if not diccionario or not isinstance(diccionario, dict):
@@ -973,7 +993,7 @@ class VentanaDiagnosticoMedico(tk.Frame):
         datos['P.A'] = self.svPA.get()
         datos['FC'] = self.svFC.get()
         datos['FR'] = self.svFR.get()
-        datos['Tº'] = self.svTº.get()
+        datos['Tº'] = self.svTemp.get()
         datos['SO'] = self.svSO.get()
         datos['Peso'] = self.svPeso.get()
 
@@ -1028,9 +1048,6 @@ class VentanaDiagnosticoMedico(tk.Frame):
             'No_Atendido': self.svNAtend.get(),
         }
 
-        datos['Firma_Medico_Responsable'] = {
-            'Firma': self.contenedor_MedRes,  
-        }
         return datos
 
     #funcion utilizada para guardar ficha del diagnostico
@@ -1221,6 +1238,7 @@ class VentanaDiagnosticoMedico(tk.Frame):
 
         # Obtener valores de las variables
         paciente =self.svPaci.get()
+        medico = self.svMedRes.get()
         edad = self.svEdad.get()
         sexo = self.svSex.get()
         direccion = self.svDir.get()
@@ -1234,6 +1252,7 @@ class VentanaDiagnosticoMedico(tk.Frame):
 
         # Etiquetas para los campos básicos
         tk.Label(main_frame, text=f'Paciente: {paciente}').grid(row=0, column=2, sticky="w", padx=10, pady=5)
+        tk.Label(main_frame, text=f'Medico: {medico}').grid(row=0, column=4, sticky="w", padx=10, pady=5)
         tk.Label(main_frame, text=f'Edad: {edad}').grid(row=1, column=2, sticky="w", padx=10, pady=5)
         tk.Label(main_frame, text=f'Sexo: {sexo}').grid(row=1, column=3, sticky="w", padx=10, pady=5)
         tk.Label(main_frame, text=f'Dirección: {direccion}').grid(row=1, column=4, sticky="w", padx=10, pady=5)
@@ -1261,7 +1280,7 @@ class VentanaDiagnosticoMedico(tk.Frame):
         tk.Label(main_frame, text=f'P.A: {self.svPA.get()}').grid(row=5, column=2, sticky="w", padx=10, pady=5)
         tk.Label(main_frame, text=f'FC: {self.svFC.get()}').grid(row=5, column=3, sticky="w", padx=10, pady=5)
         tk.Label(main_frame, text=f'FR: {self.svFR.get()}').grid(row=5, column=4, sticky="w", padx=10, pady=5)
-        tk.Label(main_frame, text=f'Temp: {self.svTº.get()}').grid(row=6, column=2, sticky="w", padx=10, pady=5)
+        tk.Label(main_frame, text=f'Temp: {self.svTemp.get()}').grid(row=6, column=2, sticky="w", padx=10, pady=5)
         tk.Label(main_frame, text=f'SO: {self.svSO.get()}').grid(row=6, column=3, sticky="w", padx=10, pady=5)
         tk.Label(main_frame, text=f'Peso: {self.svPeso.get()}').grid(row=6, column=4, sticky="w", padx=10, pady=5)
 
@@ -1305,6 +1324,7 @@ class VentanaDiagnosticoMedico(tk.Frame):
             fig, ax = plt.subplots(figsize=(8, 6))
             ax.text(0.5, 0.5, "Datos de la Receta Médica:\n\n" +
                     f"Paciente: {self.svPaci.get()}\n" +
+                    f"medico: {self.svMedRes.get()}\n" +
                     f"Edad: {self.svEdad.get()}\n" +
                     f"Sexo: {self.svSex.get()}\n" +
                     f"Dirección: {self.svDir.get()}\n" +
@@ -1318,7 +1338,7 @@ class VentanaDiagnosticoMedico(tk.Frame):
                     f"P.A: {self.svPA.get()}\n" +
                     f"FC: {self.svFC.get()}\n" +
                     f"FR: {self.svFR.get()}\n" +
-                    f"Temp: {self.svTº.get()}\n" +
+                    f"Temp: {self.svTemp.get()}\n" +
                     f"SO: {self.svSO.get()}\n" +
                     f"Peso: {self.svPeso.get()}\n" +
                     f"Tratamiento:\n{self.entryTratam.get('1.0', tk.END).strip()}\n" +

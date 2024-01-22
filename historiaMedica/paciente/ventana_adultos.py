@@ -20,8 +20,6 @@ class VentanaAdultos(tk.Frame):
         self.frame_tabla_visualizacion = tk.Frame(self, bg='#CDD8FF')
         self.frame_tabla_visualizacion.grid(row=2, column=0, sticky="nsew")
 
-        
-
         self.inicializar_gui()
         self.selected_index = None
 
@@ -89,10 +87,10 @@ class VentanaAdultos(tk.Frame):
         self.lbltelef.grid(column=0, row=4, padx=5, pady=5)
 
         self.lblDNI = tk.Label(self.scrollable_frame, text='Buscar por Hc: ', font=('ARIAL', 10, 'bold'), bg='#CDD8FF')
-        self.lblDNI.grid(column=0, row=6, padx=5, pady=5)
+        self.lblDNI.grid(column=0, row=5, padx=5, pady=8)
 
         self.lbltelef = tk.Label(self.scrollable_frame, text='Buscar por DNI: ', font=('ARIAL', 10, 'bold'), bg='#CDD8FF')
-        self.lbltelef.grid(column=3, row=6, padx=5, pady=15)
+        self.lbltelef.grid(column=0, row=6, padx=5, pady=8)
 
         self.svHC = tk.StringVar()
         self.entryHC = tk.Entry(self.scrollable_frame, textvariable=self.svHC, width=20, font=('ARIAL', 10))
@@ -137,36 +135,37 @@ class VentanaAdultos(tk.Frame):
         self.entrytelef.grid(column=1, row=4, padx=5, pady=5)
         self.datos_originales = []
 
-
         self.svBuscHC = tk.StringVar()
         self.entryBuscHC = tk.Entry(self.scrollable_frame, textvariable=self.svBuscHC, width=20, font=('ARIAL', 10))
-        self.entryBuscHC.grid(column=1, row=6, padx=5, pady=5)
+        self.entryBuscHC.grid(column=1, row=5, padx=5, pady=8)
 
         self.svBuscDNI = tk.StringVar()
         self.entryBuscDNI = tk.Entry(self.scrollable_frame, textvariable=self.svBuscDNI, width=20, font=('ARIAL', 10))
-        self.entryBuscDNI.grid(column=4, row=6, padx=5, pady=15)
+        self.entryBuscDNI.grid(column=1, row=6, padx=5, pady=8)
 
-        self.btnGuardar = tk.Button(self.scrollable_frame, text='Guardar', width=10, font=('Arial', 10, 'bold'),fg='#FFFEFE', bg='#158645', cursor='hand2', activebackground='#35BD6F',command=self.guardar_datos)
-        self.btnGuardar.grid(column=1, row=5, padx=5, pady=5)
+        self.btnGuardar = tk.Button(self.scrollable_frame, text='Guardar', width=9, font=('Arial', 10, 'bold'),fg='#FFFEFE', bg='#158645', cursor='hand2', activebackground='#35BD6F',command=self.guardar_datos)
+        self.btnGuardar.grid(column=3, row=5, padx=2, pady=5)
 
-        self.btnModificar = tk.Button(self.scrollable_frame, text='Modificar', width=10, font=('Arial', 10, 'bold'),fg='#FFFEFE', bg='#1658A2', cursor='hand2', activebackground='#3D69F0')
-        self.btnModificar.grid(column=2, row=5, padx=5, pady=5)
+        self.btnModificar = tk.Button(self.scrollable_frame, text='Modificar', width=9, font=('Arial', 10, 'bold'),fg='#FFFEFE', bg='#1658A2', cursor='hand2', activebackground='#3D69F0')
+        self.btnModificar.grid(column=4, row=5, padx=2, pady=5)
 
-        self.btnEliminar = tk.Button(self.scrollable_frame, text='Eliminar', width=10, font=('Arial', 10, 'bold'),fg='#FFFEFE', bg='#D32F2F', cursor='hand2', activebackground='#E72D40',command=self.eliminar_datos_seleccionados)
-        self.btnEliminar.grid(column=3, row=5, padx=5, pady=5)
+        self.btnEliminar = tk.Button(self.scrollable_frame, text='Eliminar', width=9, font=('Arial', 10, 'bold'),fg='#FFFEFE', bg='#D32F2F', cursor='hand2', activebackground='#E72D40',command=self.eliminar_datos_seleccionados)
+        self.btnEliminar.grid(column=5, row=5, padx=2, pady=5)
 
-        self.btnImportar = tk.Button(self.scrollable_frame, text='Importar', width=10, font=('Arial', 10, 'bold'),fg='#FFFEFE', bg='#CF811E', cursor='hand2', activebackground='#E72D40')
-        self.btnImportar.grid(column=4, row=5, padx=5, pady=5)
+        self.btnImportar = tk.Button(self.scrollable_frame, text='Importar', width=10, font=('Arial', 10, 'bold'),fg='#FFFEFE', bg='#CF811E', cursor='hand2', activebackground='#E72D40',command=self.importar_desde_excel)
+        self.btnImportar.grid(column=4, row=1, padx=5, pady=5)
 
-        self.btnExportar = tk.Button(self.scrollable_frame, text='Exportar', width=10, font=('Arial', 10, 'bold'),fg='#FFFEFE', bg='#CF811E', cursor='hand2', activebackground='#E72D40')
-        self.btnExportar.grid(column=5, row=5, padx=15, pady=5)
+        self.btnExportar = tk.Button(self.scrollable_frame, text='Exportar', width=10, font=('Arial', 10, 'bold'),fg='#FFFEFE', bg='#CF811E', cursor='hand2', activebackground='#E72D40',command=self.exportar_a_excel)
+        self.btnExportar.grid(column=4, row=3, padx=15, pady=5)
 
         self.btnBuscarhc = tk.Button(self.scrollable_frame, text='Buscar', width=10, font=('Arial', 10, 'bold'),fg='#FFFEFE', bg='#0F1010', cursor='hand2', activebackground='#FFFEFE', command=self.buscar_por_hc)
-        self.btnBuscarhc.grid(column=2, row=6, padx=15, pady=15)
+        self.btnBuscarhc.grid(column=2, row=5, padx=15, pady=8)
 
         self.btnBuscardni = tk.Button(self.scrollable_frame, text='Buscar', width=10, font=('Arial', 10, 'bold'),fg='#FFFEFE', bg='#0F1010', cursor='hand2', activebackground='#FFFEFE', command=self.buscar_por_dni)
-        self.btnBuscardni.grid(column=5, row=6, padx=5, pady=15)
+        self.btnBuscardni.grid(column=2, row=6, padx=5, pady=8)
 
+        self.btnLimpiarBuscar = tk.Button(self.scrollable_frame, text='Limpiar Busqueda', width=20, font=('Arial', 10, 'bold'),fg='#FFFEFE', bg='#6D00FD', cursor='hand2', activebackground='#FFFEFE', command=self.verificar_y_cargar_tabla)
+        self.btnLimpiarBuscar.grid(column=4, row=6, padx=5, pady=8)       
 
     def crear_tabla(self):
         # Crear la tabla con el widget Treeview
@@ -361,6 +360,7 @@ class VentanaAdultos(tk.Frame):
         hc_buscar = self.svBuscHC.get()
 
         if not hc_buscar:
+            self.cargar_tabla()
             messagebox.showwarning("Advertencia", "Por favor, ingrese la Historia Clínica para buscar.")
             return
 
@@ -382,6 +382,11 @@ class VentanaAdultos(tk.Frame):
                 self.tabla.insert("", "end", values=row_data, tags=(hc_buscar,))
         else:
             messagebox.showinfo("Información", "No se encontraron resultados para la Historia Clínica proporcionada.")
+        
+        # Verificar si entryBuscHC o svBuscHC está vacío
+        if not self.svBuscHC.get():
+            # Si está vacío, cargar la tabla con todos los datos originales
+            self.cargar_tabla()
 
     def buscar_por_dni(self):
         dni_buscar = self.svBuscDNI.get()
@@ -403,7 +408,7 @@ class VentanaAdultos(tk.Frame):
                 self.tabla.insert("", "end", values=row_data, tags=(dni_buscar,))
         else:
             messagebox.showinfo("Información", "No se encontraron resultados para el DNI proporcionado.")
-
+  
     def filtrar_tabla(self):
         hc_buscar = self.svBuscHC.get()
         dni_buscar = self.svBuscDNI.get()
@@ -418,7 +423,91 @@ class VentanaAdultos(tk.Frame):
                 (not dni_buscar or dni_fila == dni_buscar)):
                 self.tabla.insert("", "end", values=datos_fila, tags=(datos_fila[0],))
 
+    def cargar_tabla(self):
+    # Limpiar la tabla antes de cargar todos los datos originales
+        self.tabla.delete(*self.tabla.get_children())
 
+        # Insertar todos los datos originales en la tabla
+        for paciente in self.datos_originales:
+            row_data = [paciente[field] for field in ['HC', 'Fecha', 'Edad', 'Sexo', 'Nombre', 'Apellido', 'FechaN', 'Telefono', 'DNI']]
+            self.tabla.insert("", "end", values=row_data, tags=(paciente['HC'],))
+
+    def verificar_y_cargar_tabla(self):
+        # Verificar si svBuscHC o entryBuscHC está vacío
+        if not self.svBuscHC.get():
+            # Si está vacío, cargar la tabla con todos los datos originales
+            self.cargar_tabla()
+            return
+
+        # Verificar si svBuscDNI o entryBuscDNI está vacío
+        if not self.svBuscDNI.get():
+            # Si está vacío, cargar la tabla con todos los datos originales
+            self.cargar_tabla()
+            return      
+
+    def exportar_a_excel(self):
+        try:
+            # Crear un libro de Excel y una hoja de cálculo
+            wb = openpyxl.Workbook()
+            sheet = wb.active
+
+            # Agregar encabezados
+            encabezados = ["Historia Clínica", "Fecha", "Edad", "Sexo", "Nombres", "Apellidos", "Fecha de Nacimiento", "Teléfono", "DNI"]
+            sheet.append(encabezados)
+
+            # Agregar datos
+            for paciente in self.datos_originales:
+                fila_datos = [paciente[field] for field in ['HC', 'Fecha', 'Edad', 'Sexo', 'Nombre', 'Apellido', 'FechaN', 'Telefono', 'DNI']]
+                sheet.append(fila_datos)
+
+            # Guardar el archivo Excel
+            archivo_excel = filedialog.asksaveasfilename(defaultextension=".xlsx", filetypes=[("Archivos de Excel", "*.xlsx")])
+            if archivo_excel:
+                wb.save(archivo_excel)
+                messagebox.showinfo("Éxito", "Datos exportados correctamente a Excel.")
+        except Exception as e:
+            messagebox.showerror("Error", f"Error al exportar a Excel: {str(e)}")
+
+    def importar_desde_excel(self):
+        try:
+            # Abrir el cuadro de diálogo para seleccionar el archivo Excel
+            archivo_excel = filedialog.askopenfilename(filetypes=[("Archivos de Excel", "*.xlsx")])
+            if not archivo_excel:
+                return  # El usuario canceló la selección
+
+            # Cargar el libro de Excel
+            wb = openpyxl.load_workbook(archivo_excel)
+            sheet = wb.active
+
+            # Obtener los datos de la hoja de cálculo
+            datos_nuevos = []
+            for fila in sheet.iter_rows(min_row=2, values_only=True):
+                datos_fila = [str(valor) if valor else "" for valor in fila]
+                datos_nuevos.append(datos_fila)
+
+            # Verificar duplicados y agregar datos únicos
+            for nuevo_paciente in datos_nuevos:
+                hc_nuevo = nuevo_paciente[0]
+                if not any(paciente['HC'] == hc_nuevo for paciente in self.datos_originales):
+                    # No es un duplicado, agregar a datos_originales y a la tabla
+                    self.datos_originales.append({
+                        'HC': hc_nuevo,
+                        'Fecha': nuevo_paciente[1],
+                        'Edad': nuevo_paciente[2],
+                        'Sexo': nuevo_paciente[3],
+                        'Nombre': nuevo_paciente[4],
+                        'Apellido': nuevo_paciente[5],
+                        'FechaN': nuevo_paciente[6],
+                        'Telefono': nuevo_paciente[7],
+                        'DNI': nuevo_paciente[8]
+                    })
+                    self.tabla.insert("", "end", values=nuevo_paciente, tags=(hc_nuevo,))
+
+            messagebox.showinfo("Éxito", "Datos importados correctamente desde Excel.")
+        except Exception as e:
+            messagebox.showerror("Error", f"Error al importar desde Excel: {str(e)}")
+    
+    
 if __name__ == "__main__":
     root = tk.Tk()
     app = VentanaAdultos(root)

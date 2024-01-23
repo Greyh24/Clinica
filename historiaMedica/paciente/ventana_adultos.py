@@ -3,7 +3,6 @@ from tkinter import filedialog, messagebox
 from tkcalendar import DateEntry
 from tkinter import ttk
 import openpyxl
-from datetime import datetime
 import csv
 
 class VentanaAdultos(tk.Frame):
@@ -194,7 +193,6 @@ class VentanaAdultos(tk.Frame):
         self.tabla.column("FechaN", anchor=tk.CENTER, width=100)
         self.tabla.column("Telefono", anchor=tk.CENTER, width=80)
         self.tabla.column("DNI", anchor=tk.CENTER, width=80)
-        
 
         # Configurar la barra de desplazamiento
         scrollbar_y = ttk.Scrollbar(self.frame_tabla, orient="vertical", command=self.tabla.yview)
@@ -255,7 +253,6 @@ class VentanaAdultos(tk.Frame):
             telefono = self.svtelef.get()
             dni = self.svDNI.get()
            
-
             # Validar campos antes de guardar
             if not hc or not fecha or not edad or not sexo or not nombre or not apellido or not fecha_nacimiento or not telefono or not dni:
                 messagebox.showwarning("Advertencia", "Todos los campos son obligatorios.")
@@ -506,7 +503,6 @@ class VentanaAdultos(tk.Frame):
             messagebox.showinfo("Éxito", "Datos importados correctamente desde Excel.")
         except Exception as e:
             messagebox.showerror("Error", f"Error al importar desde Excel: {str(e)}")
-    
     
 if __name__ == "__main__":
     root = tk.Tk()

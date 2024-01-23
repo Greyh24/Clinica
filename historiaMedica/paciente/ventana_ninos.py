@@ -201,8 +201,6 @@ class VentanaNinos(tk.Frame):
         self.lblBdni =tk.Label(self.scrollable_frame, text='Buscar por DNI: ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
         self.lblBdni.grid(column=0, row=28, padx=0, pady=5)
 
-
-
         #entry
         self.svHC = tk.StringVar()
         self.entryHC = tk.Entry(self.scrollable_frame, textvariable= self.svHC,width=20, font=('ARIAL',10))
@@ -431,7 +429,6 @@ class VentanaNinos(tk.Frame):
         self.entryTelefonoMadre.config(validate="key", validatecommand=(self.root.register(self.validate_number), '%P'))
         self.entryDNIDDA.config(validate="key", validatecommand=(self.root.register(self.validate_number), '%P'))
         self.entryTelefonoApoderado.config(validate="key", validatecommand=(self.root.register(self.validate_number), '%P'))
-      
         
         # validación para aceptar números decimales
         self.entryFC.config(validate="key", validatecommand=(self.register(self.validate_decimal), "%P"))
@@ -460,8 +457,6 @@ class VentanaNinos(tk.Frame):
         self.entryTdE.config(validate="key", validatecommand=(self.root.register(self.validate_letter), '%P'))
         self.entrySySP.config(validate="key", validatecommand=(self.root.register(self.validate_letter), '%P'))
 
-    
-
         #BOTON
         self.btnGuardar = tk.Button(self.scrollable_frame, text='Guardar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#158645',cursor='hand2', activebackground='#35BD6F') 
         self.btnGuardar.grid(column=0, row=26, padx=0, pady=5)
@@ -483,6 +478,3 @@ class VentanaNinos(tk.Frame):
 
         self.btnBuscardni = tk.Button(self.scrollable_frame, text='Buscar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#0F1010',cursor='hand2', activebackground='#FFFEFE')
         self.btnBuscardni.grid(column=2, row=28, padx=0, pady=5)
-
-
-        #tabla visual

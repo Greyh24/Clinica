@@ -1,7 +1,10 @@
 import tkinter as tk
+import pandas as pd
+import openpyxl
 from tkcalendar import DateEntry
 from tkinter import ttk
 from time import strftime
+
 
 class VentanaNinos(tk.Frame):
     def __init__(self, root):
@@ -16,7 +19,6 @@ class VentanaNinos(tk.Frame):
         self.scrollable_frame = tk.Frame(self.canvas, bg='#CDD8FF')
         self.scrollable_frame.grid(row=0, column=3, sticky="nsew")
 
-        
         # Configurar el canvas para que sea scrollable
         self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor=tk.NW)
 
@@ -38,6 +40,7 @@ class VentanaNinos(tk.Frame):
 
         # Crear y configurar la tabla
         self.create_table()
+        self.load_data_to_table()
 
     def on_canvas_configure(self, event):
         # Configurar la región de desplazamiento del canvas cuando cambia el tamaño
@@ -46,47 +49,48 @@ class VentanaNinos(tk.Frame):
     def on_frame_configure(self, event):
         # Configurar la región de desplazamiento del frame interior cuando cambia el tamaño
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+
     def create_table(self):
         # Crear la tabla usando ttk.Treeview
         self.table = ttk.Treeview(self.scrollable_frame, columns=("Columna1", "Columna2", "Columna3", "Columna4", "Columna5", "Columna6", "Columna7", "Columna8", "Columna9", "Columna10", "Columna11", "Columna12", "Columna13", "Columna14", "Columna15", "Columna16", "Columna17", "Columna18", "Columna19", "Columna20", "Columna21", "Columna22", "Columna23", "Columna24", "Columna25", "Columna26", "Columna27", "Columna28", "Columna29", "Columna30", "Columna31", "Columna32", "Columna33", "Columna34", "Columna35", "Columna36", "Columna37", "Columna38"))
         
         # Configurar encabezados de columnas
-        self.table.heading("Columna1", text="HC")
+        self.table.heading("Columna1", text="Nº de HC")
         self.table.heading("Columna2", text="Médico")
         self.table.heading("Columna3", text="Especialidad")
-        self.table.heading("Columna4", text="FechaA")
-        self.table.heading("Columna5", text="HoraA")
+        self.table.heading("Columna4", text="Fecha de Atención")
+        self.table.heading("Columna5", text="Hora de Atención")
         self.table.heading("Columna6", text="Paciente")
         self.table.heading("Columna7", text="DNI")
         self.table.heading("Columna8", text="Sexo")
         self.table.heading("Columna9", text="Edad")
-        self.table.heading("Columna10", text="FechaN")
-        self.table.heading("Columna11", text="GrupoS")
+        self.table.heading("Columna10", text="Fecha de Nacimiento")
+        self.table.heading("Columna11", text="Grupo Sanguineo")
         self.table.heading("Columna12", text="Rh")
         self.table.heading("Columna13", text="Dirección")
         self.table.heading("Columna14", text="Ocupación")
-        self.table.heading("Columna15", text="NombreP")
-        self.table.heading("Columna16", text="DNIP")
-        self.table.heading("Columna17", text="TelefonoP")
-        self.table.heading("Columna18", text="NombreM")
-        self.table.heading("Columna19", text="DNIM")
-        self.table.heading("Columna20", text="TelefonoM")
-        self.table.heading("Columna21", text="DatosApo")
-        self.table.heading("Columna22", text="DNIApo")
-        self.table.heading("Columna23", text="TelefonoApo")
-        self.table.heading("Columna24", text="VinculoM")
+        self.table.heading("Columna15", text="Nombre del Padre")
+        self.table.heading("Columna16", text="DNI del Padre")
+        self.table.heading("Columna17", text="Telefono del Padre")
+        self.table.heading("Columna18", text="Nombre de la Madre")
+        self.table.heading("Columna19", text="DNI de la Madre")
+        self.table.heading("Columna20", text="Telefono de la Madre")
+        self.table.heading("Columna21", text="Datos del Apoderado")
+        self.table.heading("Columna22", text="DNI del Apoderado")
+        self.table.heading("Columna23", text="Telefono del Apoderado")
+        self.table.heading("Columna24", text="Vinculo con el Menor")
         self.table.heading("Columna25", text="Otros")
-        self.table.heading("Columna26", text="AntecedentesP")
-        self.table.heading("Columna27", text="AntecedentesF")
-        self.table.heading("Columna28", text="RAMA")
-        self.table.heading("Columna29", text="MotivoC")
-        self.table.heading("Columna30", text="FormaI")
-        self.table.heading("Columna31", text="TiempoE")
-        self.table.heading("Columna32", text="SignosSP")
-        self.table.heading("Columna33", text="FrecuenciaC")
-        self.table.heading("Columna34", text="FrecuenciaR")
-        self.table.heading("Columna35", text="PresiónA")
-        self.table.heading("Columna36", text="Temp")
+        self.table.heading("Columna26", text="Antecedentes Personales")
+        self.table.heading("Columna27", text="Antecedentes Familiares")
+        self.table.heading("Columna28", text="RAM/Alergias")
+        self.table.heading("Columna29", text="Motivo de la Consulta")
+        self.table.heading("Columna30", text="Forma de Inicio")
+        self.table.heading("Columna31", text="Tiempo de Enfermedad")
+        self.table.heading("Columna32", text="Signos y Síntomas Principales")
+        self.table.heading("Columna33", text="Frecuencia Cardíaca")
+        self.table.heading("Columna34", text="Frecuencia Respiratoria")
+        self.table.heading("Columna35", text="Presión Arterial")
+        self.table.heading("Columna36", text="Temperatura")
         self.table.heading("Columna37", text="Peso")
         self.table.heading("Columna38", text="Talla")
         
@@ -126,134 +130,91 @@ class VentanaNinos(tk.Frame):
 
         self.lblEspe =tk.Label(self.scrollable_frame, text='Especialidad: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=2, row=1, padx=0, pady=0)
       
-        self.lblFDA =tk.Label(self.scrollable_frame, text='Fecha de Atención: ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
-        self.lblFDA.grid(column=0, row=2, padx=0, pady=0)
+        self.lblFDA =tk.Label(self.scrollable_frame, text='Fecha de Atención: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=0, row=2, padx=0, pady=0)
 
-        self.lblHDA =tk.Label(self.scrollable_frame, text='Hora de Atención: ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
-        self.lblHDA.grid(column=2, row=2, padx=0, pady=5)
+        self.lblHDA =tk.Label(self.scrollable_frame, text='Hora de Atención: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=2, row=2, padx=0, pady=5)
         
-        self.lblDA =tk.Label(self.scrollable_frame, text='DATOS GENERALES: ',font=('ARIAL',12,'bold'), bg='#CDD8FF')
-        self.lblDA.grid(column=0, row=3, padx=0, pady=5)
+        self.lblDA =tk.Label(self.scrollable_frame, text='DATOS GENERALES: ',font=('ARIAL',12,'bold'), bg='#CDD8FF').grid(column=0, row=3, padx=0, pady=5)
 
-        self.lblPaci =tk.Label(self.scrollable_frame, text='Paciente: ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
-        self.lblPaci.grid(column=0, row=4, padx=0, pady=5)
+        self.lblPaci =tk.Label(self.scrollable_frame, text='Paciente: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=0, row=4, padx=0, pady=5)
 
-        self.lblDNI =tk.Label(self.scrollable_frame, text='DNI: ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
-        self.lblDNI.grid(column=2, row=4, padx=0, pady=5)
+        self.lblDNI =tk.Label(self.scrollable_frame, text='DNI: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=2, row=4, padx=0, pady=5)
 
-        self.lblSexo =tk.Label(self.scrollable_frame, text='Sexo: ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
-        self.lblSexo.grid(column=4, row=4, padx=0, pady=5)
+        self.lblSexo =tk.Label(self.scrollable_frame, text='Sexo: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=4, row=4, padx=0, pady=5)
 
-        self.lbledad =tk.Label(self.scrollable_frame, text='Edad: ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
-        self.lbledad.grid(column=0, row=5, padx=0, pady=5)
+        self.lbledad =tk.Label(self.scrollable_frame, text='Edad: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=0, row=5, padx=0, pady=5)
 
-        self.lblFDN =tk.Label(self.scrollable_frame, text='Fecha de nacimiento: ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
-        self.lblFDN.grid(column=2, row=5, padx=0, pady=5)
+        self.lblFDN =tk.Label(self.scrollable_frame, text='Fecha de nacimiento: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=2, row=5, padx=0, pady=5)
         
-        self.lblGS =tk.Label(self.scrollable_frame, text='Grupo Sanguineo: ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
-        self.lblGS.grid(column=4, row=5, padx=0, pady=5)
+        self.lblGS =tk.Label(self.scrollable_frame, text='Grupo Sanguineo: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=4, row=5, padx=0, pady=5)
 
-        self.lblRH =tk.Label(self.scrollable_frame, text='Rh: ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
-        self.lblRH.grid(column=0, row=6, padx=0, pady=5)
+        self.lblRH =tk.Label(self.scrollable_frame, text='Rh: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=0, row=6, padx=0, pady=5)
 
-        self.lblDireccion =tk.Label(self.scrollable_frame, text='Dirección: ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
-        self.lblDireccion.grid(column=2, row=6, padx=0, pady=5)
+        self.lblDireccion =tk.Label(self.scrollable_frame, text='Dirección: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=2, row=6, padx=0, pady=5)
 
-        self.lblOcup =tk.Label(self.scrollable_frame, text='Ocupación: ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
-        self.lblOcup.grid(column=4, row=6, padx=0, pady=5)
+        self.lblOcup =tk.Label(self.scrollable_frame, text='Ocupación: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=4, row=6, padx=0, pady=5)
 
-        self.lblDPYOA =tk.Label(self.scrollable_frame, text='DATOS DE LOS PADRES Y/O APODERADO: ',font=('ARIAL',12,'bold'), bg='#CDD8FF')
-        self.lblDPYOA.grid(column=0, row=7, padx=0, pady=5)
+        self.lblDPYOA =tk.Label(self.scrollable_frame, text='DATOS DE LOS PADRES Y/O APODERADO: ',font=('ARIAL',12,'bold'), bg='#CDD8FF').grid(column=0, row=7, padx=0, pady=5)
         
-        self.lblDpadre =tk.Label(self.scrollable_frame, text='Datos del Padre: ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
-        self.lblDpadre.grid(column=0, row=8, padx=0, pady=5)
+        self.lblDpadre =tk.Label(self.scrollable_frame, text='Datos del Padre: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=0, row=8, padx=0, pady=5)
 
-        self.lblDNIp =tk.Label(self.scrollable_frame, text='DNI: ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
-        self.lblDNIp.grid(column=2, row=8, padx=0, pady=5)
+        self.lblDNIp =tk.Label(self.scrollable_frame, text='DNI: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=2, row=8, padx=0, pady=5)
 
-        self.lblTelefP =tk.Label(self.scrollable_frame, text='Telefono: ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
-        self.lblTelefP.grid(column=4, row=8, padx=0, pady=5)
+        self.lblTelefP =tk.Label(self.scrollable_frame, text='Telefono: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=4, row=8, padx=0, pady=5)
 
-        self.lblDMadre =tk.Label(self.scrollable_frame, text='Datos de la Madre: ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
-        self.lblDMadre.grid(column=0, row=9, padx=0, pady=5)
+        self.lblDMadre =tk.Label(self.scrollable_frame, text='Datos de la Madre: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=0, row=9, padx=0, pady=5)
 
-        self.lblDNIMadre =tk.Label(self.scrollable_frame, text='DNI: ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
-        self.lblDNIMadre.grid(column=2, row=9, padx=0, pady=5)
+        self.lblDNIMadre =tk.Label(self.scrollable_frame, text='DNI: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=2, row=9, padx=0, pady=5)
 
-        self.lblTelefonoMadre =tk.Label(self.scrollable_frame, text='Telefono: ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
-        self.lblTelefonoMadre.grid(column=4, row=9, padx=0, pady=5)
+        self.lblTelefonoMadre =tk.Label(self.scrollable_frame, text='Telefono: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=4, row=9, padx=0, pady=5)
 
-        self.lblDatosApo =tk.Label(self.scrollable_frame, text='Datos del Apoderado: ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
-        self.lblDatosApo.grid(column=0, row=10, padx=0, pady=5)
+        self.lblDatosApo =tk.Label(self.scrollable_frame, text='Datos del Apoderado: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=0, row=10, padx=0, pady=5)
 
-        self.lblDNIDDA =tk.Label(self.scrollable_frame, text='DNI: ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
-        self.lblDNIDDA.grid(column=2, row=10, padx=0, pady=5)
+        self.lblDNIDDA =tk.Label(self.scrollable_frame, text='DNI: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=2, row=10, padx=0, pady=5)
 
-        self.lblTelefonoApoderado =tk.Label(self.scrollable_frame, text='Telefono: ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
-        self.lblTelefonoApoderado.grid(column=4, row=10, padx=0, pady=5)
+        self.lblTelefonoApoderado =tk.Label(self.scrollable_frame, text='Telefono: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=4, row=10, padx=0, pady=5)
 
-        self.lblVinculo =tk.Label(self.scrollable_frame, text='Vinculo con el menor: ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
-        self.lblVinculo.grid(column=0, row=11, padx=0, pady=5)
+        self.lblVinculo =tk.Label(self.scrollable_frame, text='Vinculo con el menor: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=0, row=11, padx=0, pady=5)
 
-        self.lblESQUEMAV =tk.Label(self.scrollable_frame, text='ESQUEMA DE VACUNACIÓN: ',font=('ARIAL',12,'bold'), bg='#CDD8FF')
-        self.lblESQUEMAV.grid(column=0, row=12, padx=0, pady=5)
+        self.lblESQUEMAV =tk.Label(self.scrollable_frame, text='ESQUEMA DE VACUNACIÓN: ',font=('ARIAL',12,'bold'), bg='#CDD8FF').grid(column=0, row=12, padx=0, pady=5)
         
-        self.lblOTROS =tk.Label(self.scrollable_frame, text='Otros: ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
-        self.lblOTROS.grid(column=0, row=16, padx=0, pady=5)
+        self.lblOTROS =tk.Label(self.scrollable_frame, text='Otros: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=0, row=16, padx=0, pady=5)
 
-        self.lblAntecedentes =tk.Label(self.scrollable_frame, text='ANTECEDENTE: ',font=('ARIAL',12,'bold'), bg='#CDD8FF')
-        self.lblAntecedentes.grid(column=0, row=17, padx=0, pady=5)
+        self.lblAntecedentes =tk.Label(self.scrollable_frame, text='ANTECEDENTE: ',font=('ARIAL',12,'bold'), bg='#CDD8FF').grid(column=0, row=17, padx=0, pady=5)
 
-        self.lblAntecedentesP =tk.Label(self.scrollable_frame, text='Antecedentes Personales: ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
-        self.lblAntecedentesP.grid(column=0, row=18, padx=0, pady=5)
+        self.lblAntecedentesP =tk.Label(self.scrollable_frame, text='Antecedentes Personales: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=0, row=18, padx=0, pady=5)
 
-        self.lblAntecedentesF =tk.Label(self.scrollable_frame, text='Antecedentes Familiares: ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
-        self.lblAntecedentesF.grid(column=2, row=18, padx=0, pady=5)
+        self.lblAntecedentesF =tk.Label(self.scrollable_frame, text='Antecedentes Familiares: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=2, row=18, padx=0, pady=5)
 
-        self.lblRA =tk.Label(self.scrollable_frame, text='RAM / Alergias: ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
-        self.lblRA.grid(column=4, row=18, padx=0, pady=5)
+        self.lblRA =tk.Label(self.scrollable_frame, text='RAM / Alergias: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=4, row=18, padx=0, pady=5)
 
-        self.lblANAMNESIS =tk.Label(self.scrollable_frame, text='ANAMNESIS: ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
-        self.lblANAMNESIS.grid(column=0, row=19, padx=0, pady=5)
+        self.lblANAMNESIS =tk.Label(self.scrollable_frame, text='ANAMNESIS: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=0, row=19, padx=0, pady=5)
 
-        self.lblMC =tk.Label(self.scrollable_frame, text='Motivo de consulta: ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
-        self.lblMC.grid(column=0, row=20, padx=0, pady=5)
+        self.lblMC =tk.Label(self.scrollable_frame, text='Motivo de consulta: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=0, row=20, padx=0, pady=5)
 
-        self.lblFdI =tk.Label(self.scrollable_frame, text='Forma de Inicio: ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
-        self.lblFdI.grid(column=2, row=20, padx=0, pady=5)
+        self.lblFdI =tk.Label(self.scrollable_frame, text='Forma de Inicio: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=2, row=20, padx=0, pady=5)
 
-        self.lblTdE =tk.Label(self.scrollable_frame, text='Tiempo de enfermedad: ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
-        self.lblTdE.grid(column=0, row=21, padx=0, pady=5)
+        self.lblTdE =tk.Label(self.scrollable_frame, text='Tiempo de enfermedad: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=0, row=21, padx=0, pady=5)
 
-        self.lblSySP =tk.Label(self.scrollable_frame, text='Signos y síntomas principales: ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
-        self.lblSySP.grid(column=2, row=21, padx=0, pady=5)
+        self.lblSySP =tk.Label(self.scrollable_frame, text='Signos y síntomas principales: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=2, row=21, padx=0, pady=5)
 
-        self.lblExamenF =tk.Label(self.scrollable_frame, text='EXAMEN FÍSICO: ',font=('ARIAL',12,'bold'), bg='#CDD8FF')
-        self.lblExamenF.grid(column=0, row=22, padx=0, pady=5)
+        self.lblExamenF =tk.Label(self.scrollable_frame, text='EXAMEN FÍSICO: ',font=('ARIAL',12,'bold'), bg='#CDD8FF').grid(column=0, row=22, padx=0, pady=5)
 
-        self.lblFC =tk.Label(self.scrollable_frame, text='Frecuencia Cardíaca (x min): ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
-        self.lblFC.grid(column=0, row=23, padx=0, pady=5)
+        self.lblFC =tk.Label(self.scrollable_frame, text='Frecuencia Cardíaca (x min): ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=0, row=23, padx=0, pady=5)
 
-        self.lblFR =tk.Label(self.scrollable_frame, text='Frecuencia Respiratoria (x min): ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
-        self.lblFR.grid(column=2, row=23, padx=0, pady=5)
+        self.lblFR =tk.Label(self.scrollable_frame, text='Frecuencia Respiratoria (x min): ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=2, row=23, padx=0, pady=5)
 
-        self.lblPresionA =tk.Label(self.scrollable_frame, text='Presión Arterial (mmHg): ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
-        self.lblPresionA.grid(column=0, row=24, padx=0, pady=5)
+        self.lblPresionA =tk.Label(self.scrollable_frame, text='Presión Arterial (mmHg): ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=0, row=24, padx=0, pady=5)
 
-        self.lblTC =tk.Label(self.scrollable_frame, text='Temp (ºC): ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
-        self.lblTC.grid(column=2, row=24, padx=0, pady=5)
+        self.lblTC =tk.Label(self.scrollable_frame, text='Temp (ºC): ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=2, row=24, padx=0, pady=5)
 
-        self.lblPeso =tk.Label(self.scrollable_frame, text='Peso: ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
-        self.lblPeso.grid(column=0, row=25, padx=0, pady=5)
+        self.lblPeso =tk.Label(self.scrollable_frame, text='Peso: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=0, row=25, padx=0, pady=5)
 
-        self.lblTalla =tk.Label(self.scrollable_frame, text='Talla: ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
-        self.lblTalla.grid(column=2, row=25, padx=0, pady=5)
+        self.lblTalla =tk.Label(self.scrollable_frame, text='Talla: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=2, row=25, padx=0, pady=5)
 
-        self.lblBhc =tk.Label(self.scrollable_frame, text='Buscar por Hc: ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
-        self.lblBhc.grid(column=0, row=27, padx=0, pady=5)
+        self.lblBhc =tk.Label(self.scrollable_frame, text='Buscar por Hc: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=0, row=27, padx=0, pady=5)
 
-        self.lblBdni =tk.Label(self.scrollable_frame, text='Buscar por DNI: ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
-        self.lblBdni.grid(column=0, row=28, padx=0, pady=5)
+        self.lblBdni =tk.Label(self.scrollable_frame, text='Buscar por DNI: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=0, row=28, padx=0, pady=5)
 
         #entry
         self.svHC = tk.StringVar()
@@ -287,11 +248,11 @@ class VentanaNinos(tk.Frame):
 
         # checkboxes para el género
         self.svsexo_m = tk.IntVar()
-        self.checkbox_masculino = tk.Checkbutton(self.scrollable_frame, text='H', variable=self.svsexo_m, font=('ARIAL', 10, 'bold'), bg='#CDD8FF')
+        self.checkbox_masculino = tk.Checkbutton(self.scrollable_frame, text='M', variable=self.svsexo_m, font=('ARIAL', 10, 'bold'), bg='#CDD8FF')
         self.checkbox_masculino.grid(column=5, row=4, padx=(0,1), pady=5)
 
         self.svsexo_f = tk.IntVar()
-        self.checkbox_femenino = tk.Checkbutton(self.scrollable_frame, text='M', variable=self.svsexo_f, font=('ARIAL', 10, 'bold'), bg='#CDD8FF')
+        self.checkbox_femenino = tk.Checkbutton(self.scrollable_frame, text='F', variable=self.svsexo_f, font=('ARIAL', 10, 'bold'), bg='#CDD8FF')
         self.checkbox_femenino.grid(column=5, row=4, padx=(90, 0), pady=5)
 
         self.svedad = tk.StringVar()
@@ -512,11 +473,11 @@ class VentanaNinos(tk.Frame):
         self.entrySySP.config(validate="key", validatecommand=(self.root.register(self.validate_letter), '%P'))
 
         #BOTON
-        self.btnGuardar = tk.Button(self.scrollable_frame, text='Guardar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#158645',cursor='hand2', activebackground='#35BD6F').grid(column=0, row=26, padx=0, pady=5)
+        self.btnGuardar = tk.Button(self.scrollable_frame, text='Guardar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#158645',cursor='hand2', activebackground='#35BD6F',command=self.guardar_datos_en_excel).grid(column=0, row=26, padx=0, pady=5)
 
         self.btnModificar = tk.Button(self.scrollable_frame, text='Modificar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#1658A2',cursor='hand2', activebackground='#3D69F0').grid(column=1, row=26, padx=0, pady=5)
 
-        self.btnEliminar = tk.Button(self.scrollable_frame, text='Eliminar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#D32F2F',cursor='hand2', activebackground='#E72D40').grid(column=2, row=26, padx=0, pady=5)
+        self.btnEliminar = tk.Button(self.scrollable_frame, text='Eliminar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#D32F2F',cursor='hand2', activebackground='#E72D40',command=self.eliminar_seleccionado).grid(column=2, row=26, padx=0, pady=5)
 
         self.btnImportar = tk.Button(self.scrollable_frame, text='Importar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#CF811E',cursor='hand2', activebackground='#E72D40').grid(column=3, row=26, padx=0, pady=5)
 
@@ -525,3 +486,147 @@ class VentanaNinos(tk.Frame):
         self.btnBuscarhc = tk.Button(self.scrollable_frame, text='Buscar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#0F1010',cursor='hand2', activebackground='#FFFEFE').grid(column=2, row=27, padx=15, pady=5)
 
         self.btnBuscardni = tk.Button(self.scrollable_frame, text='Buscar', width=10, font=('Arial', 10, 'bold'), fg='#FFFEFE', bg='#0F1010', cursor='hand2', activebackground='#FFFEFE').grid(column=2, row=28, padx=0, pady=5)
+    
+    def guardar_datos_en_excel(self):
+        # Mapear el valor de sexo
+        sexo = 'Masculino' if self.svsexo_m.get() else 'Femenino' if self.svsexo_f.get() else ''
+
+        # Mapear los valores de vacunación
+        vacunas = [
+            'BCG' if self.svBCG.get() else None,
+            'HVB' if self.svHVB.get() else None,
+            'PENTAVALENTE' if self.svPENTAVALENTE.get() else None,
+            'ANTIPOLIO' if self.svANTIPOLIO.get() else None,
+            'ANTINEUMOCOCICA' if self.svANTINEUMOCOCICA.get() else None,
+            'DT' if self.svDT.get() else None,
+            'SPR' if self.svSPR.get() else None,
+            'ROTAVIRUS' if self.svROTAVIRUS.get() else None,
+            'INFLUENZA_PED' if self.svINFLUENZA_PED.get() else None,
+            'VARICELA' if self.svVARICELA.get() else None,
+            'DPR' if self.svDPR.get() else None,
+            'APO' if self.svAPO.get() else None,
+            'ANTIAMARILICA' if self.svANTIAMARILICA.get() else None,
+        ]
+
+        # Filtrar las vacunas seleccionadas (eliminando los elementos None)
+        vacunas_seleccionadas = [vacuna for vacuna in vacunas if vacuna is not None]
+
+        # Agregar el valor ingresado en "Otros_Vacunas" si se ha ingresado algo
+        otros_vacunas_valor = self.svOTROS.get().strip()  # Eliminar espacios en blanco
+        if otros_vacunas_valor:
+            vacunas_seleccionadas.append(otros_vacunas_valor)
+
+        # Crear un diccionario con los datos recopilados
+        datos = {
+            'Historia_Clinica': [self.svHC.get()],
+            'Medico': [self.svMd.get()],
+            'Especialidad': [self.sveEspe.get()],
+            'Fecha_Atencion': [self.svFDA.get()],
+            'Hora_Atencion': [self.svHDA.get()],
+            'Paciente': [self.svPaci.get()],
+            'DNI': [self.svDNI.get()],
+            'Sexo': [sexo],
+            'Edad': [self.svedad.get()],
+            'Fecha_Nacimiento': [self.svFDN.get()],
+            'Grupo_Sanguineo': [self.svGS.get()],
+            'Rh': [self.svRH.get()],
+            'Direccion': [self.svDireccion.get()],
+            'Ocupacion': [self.svOcup.get()],
+            'Datos_Padre': [self.svDpadre.get()],
+            'DNI_Padre': [self.svDNIp.get()],
+            'Telefono_Padre': [self.svTelefP.get()],
+            'Datos_Madre': [self.svDMadre.get()],
+            'DNI_Madre': [self.svDNIMadre.get()],
+            'Telefono_Madre': [self.svTelefonoMadre.get()],
+            'Datos_Apoderado': [self.svDatosApo.get()],
+            'DNI_Apoderado': [self.svDNIDDA.get()],
+            'Telefono_Apoderado': [self.svTelefonoApoderado.get()],
+            'Vinculo_Apoderado': [self.svVinculo.get()],
+            'Esquema_de_Vacunas': [vacunas_seleccionadas],
+            'Antecedentes_Personales': [self.svAntecedentesP.get()],
+            'Antecedentes_Familiares': [self.svAntecedentesF.get()],
+            'RAM_Alergias': [self.svRA.get()],
+            'Motivo_Consulta': [self.svMC.get()],
+            'Forma_Inicio': [self.svFdI.get()],
+            'Tiempo_Enfermedad': [self.svTdE.get()],
+            'Signos_Sintomas_Principales': [self.svSySP.get()],
+            'Frecuencia_Cardiaca': [self.svFC.get()],
+            'Frecuencia_Respiratoria': [self.svFR.get()],
+            'Presion_Arterial': [self.svPresionA.get()],
+            'Temperatura': [self.svTC.get()],
+            'Peso': [self.svPeso.get()],
+            'Talla': [self.svTalla.get()],
+        }
+
+        # Crear un DataFrame de pandas
+        df = pd.DataFrame(datos)
+
+        # Intentar cargar un DataFrame existente si el archivo ya existe
+        try:
+            df_existente = pd.read_csv('datos_Niños.csv')
+        except FileNotFoundError:
+            df_existente = pd.DataFrame()
+
+        # Concatenar el DataFrame existente con el nuevo DataFrame (df en lugar de DFAState)
+        df_final = pd.concat([df_existente, df], ignore_index=True)
+
+        # Guardar el DataFrame combinado en el archivo CSV
+        df_final.to_csv('datos_Niños.csv', index=False)
+        print('Datos agregados correctamente en el archivo CSV.')
+        
+        self.load_data_to_table()
+
+    def load_data_to_table(self):
+        # Intentar cargar el archivo CSV existente
+        try:
+            df = pd.read_csv('datos_Niños.csv')
+        except FileNotFoundError:
+            print("El archivo 'datos_Niños.csv' no se encuentra.")
+
+        # Rellenar NaN con un valor específico (por ejemplo, cadena vacía)
+        df = df.fillna('')
+
+        # Limpiar la tabla antes de cargar nuevos datos
+        for item in self.table.get_children():
+            self.table.delete(item)
+
+        # Insertar los datos en la tabla
+        for index, row in df.iterrows():
+            self.table.insert("", "end", values=row.tolist())
+    
+    def eliminar_seleccionado(self):
+        # Obtener las filas seleccionadas
+        seleccion = self.table.selection()
+
+        if not seleccion:
+            print("Por favor, selecciona al menos una fila para eliminar.")
+            return
+
+        try:
+            # Intentar cargar el DataFrame existente
+            self.df = pd.read_csv('datos_Niños.csv')
+        except FileNotFoundError:
+            print("El archivo 'datos_Niños.csv' no se encuentra.")
+            return
+
+        # Eliminar las filas seleccionadas del DataFrame
+        self.df = self.df.drop(self.table.index(seleccion), axis=0)
+
+        # Limpiar la tabla antes de cargar nuevos datos
+        for item in self.table.get_children():
+            self.table.delete(item)
+
+        # Rellenar valores nulos con cadena vacía
+        self.df = self.df.fillna('')
+
+        # Insertar los datos actualizados en la tabla
+        for index, row in self.df.iterrows():
+            self.table.insert("", "end", values=row.tolist())
+
+        # Guardar el DataFrame actualizado en el archivo CSV
+        self.df.to_csv('datos_Niños.csv', index=False)
+        print('Datos eliminados correctamente en el archivo CSV.')
+
+
+
+

@@ -16,9 +16,6 @@ class VentanaAdultos(tk.Frame):
         self.frame_tabla = tk.Frame(self, bg='#CDD8FF')
         self.frame_tabla.grid(row=1, column=0, sticky="nsew")
 
-        self.frame_tabla_visualizacion = tk.Frame(self, bg='#CDD8FF')
-        self.frame_tabla_visualizacion.grid(row=2, column=0, sticky="nsew")
-
         self.inicializar_gui()
         self.selected_index = None
 
@@ -141,6 +138,16 @@ class VentanaAdultos(tk.Frame):
         self.svBuscDNI = tk.StringVar()
         self.entryBuscDNI = tk.Entry(self.scrollable_frame, textvariable=self.svBuscDNI, width=20, font=('ARIAL', 10))
         self.entryBuscDNI.grid(column=1, row=6, padx=5, pady=8)
+
+        # validación para aceptar solo números
+        self.entryedad.config(validate="key", validatecommand=(self.root.register(self.validate_number), '%P'))
+        self.entryDNI.config(validate="key", validatecommand=(self.root.register(self.validate_number), '%P'))
+        self.entrytelef.config(validate="key", validatecommand=(self.root.register(self.validate_number), '%P'))
+        self.entryBuscDNI.config(validate="key", validatecommand=(self.root.register(self.validate_number), '%P'))
+        
+        # validación para aceptar solo letras
+        self.entryNombre.config(validate="key", validatecommand=(self.root.register(self.validate_letter), '%P'))
+        self.entryApellido.config(validate="key", validatecommand=(self.root.register(self.validate_letter), '%P'))
 
         self.btnGuardar = tk.Button(self.scrollable_frame, text='Guardar', width=9, font=('Arial', 10, 'bold'),fg='#FFFEFE', bg='#158645', cursor='hand2', activebackground='#35BD6F',command=self.guardar_datos)
         self.btnGuardar.grid(column=3, row=5, padx=2, pady=5)

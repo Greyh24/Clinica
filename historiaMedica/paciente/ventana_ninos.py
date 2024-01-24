@@ -16,6 +16,7 @@ class VentanaNinos(tk.Frame):
         self.scrollable_frame = tk.Frame(self.canvas, bg='#CDD8FF')
         self.scrollable_frame.grid(row=0, column=3, sticky="nsew")
 
+        
         # Configurar el canvas para que sea scrollable
         self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor=tk.NW)
 
@@ -24,12 +25,19 @@ class VentanaNinos(tk.Frame):
         self.scrollbar_y.grid(row=0, column=3, sticky="ns")
         self.canvas.configure(yscrollcommand=self.scrollbar_y.set)
 
+        self.scrollbar_x = tk.Scrollbar(self, orient="horizontal", command=self.canvas.xview)
+        self.scrollbar_x.grid(row=1, column=0, sticky="ew")
+        self.canvas.configure(xscrollcommand=self.scrollbar_x.set)
+
         # Configurar eventos de desplazamiento
         self.canvas.bind("<Configure>", self.on_canvas_configure)
         self.scrollable_frame.bind("<Configure>", self.on_frame_configure)
 
         # Llamar al método camposPacienteNiño dentro del canvas
         self.camposPacienteNiño()
+
+        # Crear y configurar la tabla
+        self.create_table()
 
     def on_canvas_configure(self, event):
         # Configurar la región de desplazamiento del canvas cuando cambia el tamaño
@@ -38,7 +46,56 @@ class VentanaNinos(tk.Frame):
     def on_frame_configure(self, event):
         # Configurar la región de desplazamiento del frame interior cuando cambia el tamaño
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+    def create_table(self):
+        # Crear la tabla usando ttk.Treeview
+        self.table = ttk.Treeview(self.scrollable_frame, columns=("Columna1", "Columna2", "Columna3", "Columna4", "Columna5", "Columna6", "Columna7", "Columna8", "Columna9", "Columna10", "Columna11", "Columna12", "Columna13", "Columna14", "Columna15", "Columna16", "Columna17", "Columna18", "Columna19", "Columna20", "Columna21", "Columna22", "Columna23", "Columna24", "Columna25", "Columna26", "Columna27", "Columna28", "Columna29", "Columna30", "Columna31", "Columna32", "Columna33", "Columna34", "Columna35", "Columna36", "Columna37", "Columna38"))
+        
+        # Configurar encabezados de columnas
+        self.table.heading("Columna1", text="HC")
+        self.table.heading("Columna2", text="Médico")
+        self.table.heading("Columna3", text="Especialidad")
+        self.table.heading("Columna4", text="FechaA")
+        self.table.heading("Columna5", text="HoraA")
+        self.table.heading("Columna6", text="Paciente")
+        self.table.heading("Columna7", text="DNI")
+        self.table.heading("Columna8", text="Sexo")
+        self.table.heading("Columna9", text="Edad")
+        self.table.heading("Columna10", text="FechaN")
+        self.table.heading("Columna11", text="GrupoS")
+        self.table.heading("Columna12", text="Rh")
+        self.table.heading("Columna13", text="Dirección")
+        self.table.heading("Columna14", text="Ocupación")
+        self.table.heading("Columna15", text="NombreP")
+        self.table.heading("Columna16", text="DNIP")
+        self.table.heading("Columna17", text="TelefonoP")
+        self.table.heading("Columna18", text="NombreM")
+        self.table.heading("Columna19", text="DNIM")
+        self.table.heading("Columna20", text="TelefonoM")
+        self.table.heading("Columna21", text="DatosApo")
+        self.table.heading("Columna22", text="DNIApo")
+        self.table.heading("Columna23", text="TelefonoApo")
+        self.table.heading("Columna24", text="VinculoM")
+        self.table.heading("Columna25", text="Otros")
+        self.table.heading("Columna26", text="AntecedentesP")
+        self.table.heading("Columna27", text="AntecedentesF")
+        self.table.heading("Columna28", text="RAMA")
+        self.table.heading("Columna29", text="MotivoC")
+        self.table.heading("Columna30", text="FormaI")
+        self.table.heading("Columna31", text="TiempoE")
+        self.table.heading("Columna32", text="SignosSP")
+        self.table.heading("Columna33", text="FrecuenciaC")
+        self.table.heading("Columna34", text="FrecuenciaR")
+        self.table.heading("Columna35", text="PresiónA")
+        self.table.heading("Columna36", text="Temp")
+        self.table.heading("Columna37", text="Peso")
+        self.table.heading("Columna38", text="Talla")
+        
+        # Colocar la tabla en la posición deseada
+        self.table.grid(row=30, column=0, columnspan=38, padx=10, pady=10)
 
+    def yview(self, *args):
+        pass
+    
     def validate_number(self, value):
         # Función de validación para aceptar solo números
         return value.isdigit() or value == ""
@@ -63,15 +120,12 @@ class VentanaNinos(tk.Frame):
     def camposPacienteNiño(self):
        
         #labels
-        self.lblHC =tk.Label(self.scrollable_frame, text='Historia Clinica: ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
-        self.lblHC.grid(column=2, row=0, padx=0, pady=5)
+        self.lblHC =tk.Label(self.scrollable_frame, text='Historia Clinica: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=2, row=0, padx=0, pady=5)
 
-        self.lblMd =tk.Label(self.scrollable_frame, text='Médico: ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
-        self.lblMd.grid(column=0, row=1, padx=0, pady=0)
+        self.lblMd =tk.Label(self.scrollable_frame, text='Médico: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=0, row=1, padx=0, pady=0)
 
-        self.lblEspe =tk.Label(self.scrollable_frame, text='Especialidad: ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
-        self.lblEspe.grid(column=2, row=1, padx=0, pady=0)
-
+        self.lblEspe =tk.Label(self.scrollable_frame, text='Especialidad: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=2, row=1, padx=0, pady=0)
+      
         self.lblFDA =tk.Label(self.scrollable_frame, text='Fecha de Atención: ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
         self.lblFDA.grid(column=0, row=2, padx=0, pady=0)
 
@@ -186,7 +240,7 @@ class VentanaNinos(tk.Frame):
         self.lblPresionA =tk.Label(self.scrollable_frame, text='Presión Arterial (mmHg): ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
         self.lblPresionA.grid(column=0, row=24, padx=0, pady=5)
 
-        self.lblTC =tk.Label(self.scrollable_frame, text='Tº (ºC): ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
+        self.lblTC =tk.Label(self.scrollable_frame, text='Temp (ºC): ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
         self.lblTC.grid(column=2, row=24, padx=0, pady=5)
 
         self.lblPeso =tk.Label(self.scrollable_frame, text='Peso: ',font=('ARIAL',10,'bold'), bg='#CDD8FF')
@@ -458,23 +512,16 @@ class VentanaNinos(tk.Frame):
         self.entrySySP.config(validate="key", validatecommand=(self.root.register(self.validate_letter), '%P'))
 
         #BOTON
-        self.btnGuardar = tk.Button(self.scrollable_frame, text='Guardar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#158645',cursor='hand2', activebackground='#35BD6F') 
-        self.btnGuardar.grid(column=0, row=26, padx=0, pady=5)
+        self.btnGuardar = tk.Button(self.scrollable_frame, text='Guardar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#158645',cursor='hand2', activebackground='#35BD6F').grid(column=0, row=26, padx=0, pady=5)
 
-        self.btnModificar = tk.Button(self.scrollable_frame, text='Modificar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#1658A2',cursor='hand2', activebackground='#3D69F0')
-        self.btnModificar.grid(column=1, row=26, padx=0, pady=5)
+        self.btnModificar = tk.Button(self.scrollable_frame, text='Modificar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#1658A2',cursor='hand2', activebackground='#3D69F0').grid(column=1, row=26, padx=0, pady=5)
 
-        self.btnEliminar = tk.Button(self.scrollable_frame, text='Eliminar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#D32F2F',cursor='hand2', activebackground='#E72D40')
-        self.btnEliminar.grid(column=2, row=26, padx=0, pady=5)
+        self.btnEliminar = tk.Button(self.scrollable_frame, text='Eliminar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#D32F2F',cursor='hand2', activebackground='#E72D40').grid(column=2, row=26, padx=0, pady=5)
 
-        self.btnImportar = tk.Button(self.scrollable_frame, text='Importar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#CF811E',cursor='hand2', activebackground='#E72D40')
-        self.btnImportar.grid(column=3, row=26, padx=0, pady=5)
+        self.btnImportar = tk.Button(self.scrollable_frame, text='Importar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#CF811E',cursor='hand2', activebackground='#E72D40').grid(column=3, row=26, padx=0, pady=5)
 
-        self.btnExportar = tk.Button(self.scrollable_frame, text='Exportar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#CF811E',cursor='hand2', activebackground='#E72D40')
-        self.btnExportar.grid(column=4, row=26, padx=15, pady=5)
+        self.btnExportar = tk.Button(self.scrollable_frame, text='Exportar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#CF811E',cursor='hand2', activebackground='#E72D40').grid(column=4, row=26, padx=15, pady=5)
 
-        self.btnBuscarhc = tk.Button(self.scrollable_frame, text='Buscar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#0F1010',cursor='hand2', activebackground='#FFFEFE')
-        self.btnBuscarhc.grid(column=2, row=27, padx=15, pady=5)
+        self.btnBuscarhc = tk.Button(self.scrollable_frame, text='Buscar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#0F1010',cursor='hand2', activebackground='#FFFEFE').grid(column=2, row=27, padx=15, pady=5)
 
-        self.btnBuscardni = tk.Button(self.scrollable_frame, text='Buscar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#0F1010',cursor='hand2', activebackground='#FFFEFE')
-        self.btnBuscardni.grid(column=2, row=28, padx=0, pady=5)
+        self.btnBuscardni = tk.Button(self.scrollable_frame, text='Buscar', width=10, font=('Arial', 10, 'bold'), fg='#FFFEFE', bg='#0F1010', cursor='hand2', activebackground='#FFFEFE').grid(column=2, row=28, padx=0, pady=5)

@@ -1,2 +1,3 @@
 Historia_Clinica,Medico,Especialidad,Fecha_Atencion,Hora_Atencion,Paciente,DNI,Sexo,Edad,Fecha_Nacimiento,Grupo_Sanguineo,Rh,Direccion,Ocupacion,Datos_Padre,DNI_Padre,Telefono_Padre,Datos_Madre,DNI_Madre,Telefono_Madre,Datos_Apoderado,DNI_Apoderado,Telefono_Apoderado,Vinculo_Apoderado,Esquema_de_Vacunas,Antecedentes_Personales,Antecedentes_Familiares,RAM_Alergias,Motivo_Consulta,Forma_Inicio,Tiempo_Enfermedad,Signos_Sintomas_Principales,Frecuencia_Cardiaca,Frecuencia_Respiratoria,Presion_Arterial,Temperatura,Peso,Talla
 72765181AP,Juan Ruiz,,1/24/24,21:29 PM,Aron Perez,72765181.0,Masculino,25.0,1/24/24,,,,,,,,,,,,,,,['HVB'],,,,,,,,,,,,,
+77879451,Mario,,1/24/24,23:08 PM,Maria,,,5,1/24/24,,,,,,,,,,,,,,,[],,,,,,,,,,,,,

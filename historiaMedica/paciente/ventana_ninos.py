@@ -2,7 +2,7 @@ import tkinter as tk
 import pandas as pd
 import openpyxl
 from tkcalendar import DateEntry
-from tkinter import ttk
+from tkinter import ttk, filedialog
 from time import strftime
 
 
@@ -538,11 +538,10 @@ class VentanaNinos(tk.Frame):
 
         self.btnImportar = tk.Button(self.scrollable_frame, text='Importar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#CF811E',cursor='hand2', activebackground='#E72D40').grid(column=3, row=26, padx=0, pady=5)
 
-        self.btnExportar = tk.Button(self.scrollable_frame, text='Exportar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#CF811E',cursor='hand2', activebackground='#E72D40').grid(column=4, row=26, padx=15, pady=5)
+        self.btnExportar = tk.Button(self.scrollable_frame, text='Exportar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#CF811E',cursor='hand2', activebackground='#E72D40',command=self.exportar_a_excel).grid(column=4, row=26, padx=15, pady=5)
 
         self.btnBuscar = tk.Button(self.scrollable_frame, text='Buscar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#0F1010',cursor='hand2', activebackground='#FFFEFE', command=self.search_data).grid(column=1, row=27, padx=5, pady=5)
 
-      
     def guardar_datos_en_excel(self):
         # Mapear el valor de sexo
         sexo = 'Masculino' if self.svsexo_m.get() else 'Femenino' if self.svsexo_f.get() else ''
@@ -712,3 +711,29 @@ class VentanaNinos(tk.Frame):
             # Si está vacío, cargar la tabla con todos los datos originales
             self.load_data_to_table()
             return
+
+    def exportar_a_excel(self):
+        # Obtener los datos de la tabla
+        datos_tabla = []
+        for iid in self.table.get_children():
+            valores = [self.table.item(iid, 'values')[0]]  # Obtener el ID
+            valores.extend(self.table.item(iid, 'values')[1:])  # Obtener los demás valores
+            datos_tabla.append(valores)
+
+        # Obtener los encabezados de las columnas
+        encabezados = [self.table.heading(col)["text"] for col in self.table["columns"]]
+
+        # Crear un DataFrame de pandas con los datos y encabezados
+        df = pd.DataFrame(datos_tabla, columns=encabezados)
+
+        # Pedir al usuario que seleccione la ubicación y el nombre del archivo
+        archivo_guardado = filedialog.asksaveasfilename(
+            defaultextension=".xlsx",
+            filetypes=[("Archivos Excel", "*.xlsx"), ("Todos los archivos", "*.*")],
+            title="Guardar archivo Excel"
+        )
+
+        # Verificar si el usuario seleccionó un archivo
+        if archivo_guardado:
+            # Guardar el DataFrame como un archivo Excel
+            df.to_excel(archivo_guardado, index=False)

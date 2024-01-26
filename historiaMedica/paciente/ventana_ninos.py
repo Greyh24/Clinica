@@ -2,8 +2,9 @@ import tkinter as tk
 import pandas as pd
 import openpyxl
 from tkcalendar import DateEntry
-from tkinter import ttk, filedialog
+from tkinter import ttk, filedialog, messagebox
 from time import strftime
+from openpyxl import load_workbook
 
 
 class VentanaNinos(tk.Frame):
@@ -241,35 +242,35 @@ class VentanaNinos(tk.Frame):
 
         self.lblAntecedentes =tk.Label(self.scrollable_frame, text='ANTECEDENTE: ',font=('ARIAL',12,'bold'), bg='#CDD8FF').grid(column=0, row=17, padx=0, pady=5)
 
-        self.lblAntecedentesP =tk.Label(self.scrollable_frame, text='Antecedentes Personales: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=0, row=18, padx=0, pady=5)
+        self.lblAntecedentesP =tk.Label(self.scrollable_frame, text='Antecedentes Personales: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=0, row=18, padx=(0, 20), pady=5)
 
-        self.lblAntecedentesF =tk.Label(self.scrollable_frame, text='Antecedentes Familiares: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=2, row=18, padx=0, pady=5)
+        self.lblAntecedentesF =tk.Label(self.scrollable_frame, text='Antecedentes Familiares: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=1, row=18, padx=(0, 20), pady=5)
 
-        self.lblRA =tk.Label(self.scrollable_frame, text='RAM / Alergias: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=4, row=18, padx=0, pady=5)
+        self.lblRA =tk.Label(self.scrollable_frame, text='RAM / Alergias: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=2, row=18, padx=(0, 20), pady=5)
 
-        self.lblANAMNESIS =tk.Label(self.scrollable_frame, text='ANAMNESIS: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=0, row=19, padx=0, pady=5)
+        self.lblANAMNESIS =tk.Label(self.scrollable_frame, text='ANAMNESIS: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=0, row=19, padx=(0, 20), pady=5)
 
-        self.lblMC =tk.Label(self.scrollable_frame, text='Motivo de consulta: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=0, row=20, padx=0, pady=5)
+        self.lblMC =tk.Label(self.scrollable_frame, text='Motivo de consulta: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=0, row=20, padx=(0, 20), pady=5)
 
-        self.lblFdI =tk.Label(self.scrollable_frame, text='Forma de Inicio: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=2, row=20, padx=0, pady=5)
+        self.lblFdI =tk.Label(self.scrollable_frame, text='Forma de Inicio: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=1, row=20, padx=(0, 20), pady=5)
 
-        self.lblTdE =tk.Label(self.scrollable_frame, text='Tiempo de enfermedad: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=0, row=21, padx=0, pady=5)
+        self.lblTdE =tk.Label(self.scrollable_frame, text='Tiempo de enfermedad: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=0, row=21, padx=(0, 20), pady=5)
 
-        self.lblSySP =tk.Label(self.scrollable_frame, text='Signos y síntomas principales: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=2, row=21, padx=0, pady=5)
+        self.lblSySP =tk.Label(self.scrollable_frame, text='Signos y síntomas principales: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=1, row=21, padx=(0, 20), pady=5)
 
         self.lblExamenF =tk.Label(self.scrollable_frame, text='EXAMEN FÍSICO: ',font=('ARIAL',12,'bold'), bg='#CDD8FF').grid(column=0, row=22, padx=0, pady=5)
 
-        self.lblFC =tk.Label(self.scrollable_frame, text='Frecuencia Cardíaca (x min): ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=0, row=23, padx=0, pady=5)
+        self.lblFC =tk.Label(self.scrollable_frame, text='Frecuencia Cardíaca (x min): ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=0, row=23, padx=(0, 20), pady=5)
 
-        self.lblFR =tk.Label(self.scrollable_frame, text='Frecuencia Respiratoria (x min): ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=2, row=23, padx=0, pady=5)
+        self.lblFR =tk.Label(self.scrollable_frame, text='Frecuencia Respiratoria (x min): ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=1, row=23, padx=(0, 20), pady=5)
 
-        self.lblPresionA =tk.Label(self.scrollable_frame, text='Presión Arterial (mmHg): ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=0, row=24, padx=0, pady=5)
+        self.lblPresionA =tk.Label(self.scrollable_frame, text='Presión Arterial (mmHg): ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=0, row=24, padx=(0, 20), pady=5)
 
-        self.lblTC =tk.Label(self.scrollable_frame, text='Temp (ºC): ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=2, row=24, padx=0, pady=5)
+        self.lblTC =tk.Label(self.scrollable_frame, text='Temp (ºC): ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=1, row=24, padx=(0, 20), pady=5)
 
-        self.lblPeso =tk.Label(self.scrollable_frame, text='Peso: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=0, row=25, padx=0, pady=5)
+        self.lblPeso =tk.Label(self.scrollable_frame, text='Peso: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=0, row=25, padx=(0, 20), pady=5)
 
-        self.lblTalla =tk.Label(self.scrollable_frame, text='Talla: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=2, row=25, padx=0, pady=5)
+        self.lblTalla =tk.Label(self.scrollable_frame, text='Talla: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=1, row=25, padx=(0, 20), pady=5)
 
         self.lblBuscar =tk.Label(self.scrollable_frame, text='Buscar: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=0, row=27,  padx=(0, 1), pady=5)
 
@@ -434,58 +435,58 @@ class VentanaNinos(tk.Frame):
  
         self.svAntecedentesP = tk.StringVar()
         self.entryAntecedentesP = tk.Entry(self.scrollable_frame, textvariable= self.svAntecedentesP,width=20, font=('ARIAL',10))
-        self.entryAntecedentesP.grid(column=1, row=18, padx=0, pady=5)
+        self.entryAntecedentesP.grid(column=0, row=18, padx=(290, 0), pady=5)
         
         self.svAntecedentesF = tk.StringVar()
         self.entryAntecedentesF = tk.Entry(self.scrollable_frame, textvariable= self.svAntecedentesF,width=20, font=('ARIAL',10))
-        self.entryAntecedentesF.grid(column=3, row=18, padx=0, pady=5)
+        self.entryAntecedentesF.grid(column=1, row=18, padx=(290, 0), pady=5)
 
         self.svRA = tk.StringVar()
         self.entryRA = tk.Entry(self.scrollable_frame, textvariable= self.svRA,width=20, font=('ARIAL',10))
-        self.entryRA.grid(column=5, row=18, padx=0, pady=5)
+        self.entryRA.grid(column=2, row=18, padx=(290, 0), pady=5)
 
         self.svMC = tk.StringVar()
         self.entryMC = tk.Entry(self.scrollable_frame, textvariable= self.svMC,width=20, font=('ARIAL',10))
-        self.entryMC.grid(column=1, row=20, padx=0, pady=5)
+        self.entryMC.grid(column=0, row=20, padx=(290, 0), pady=5)
 
         self.svFdI = tk.StringVar()
         self.entryFdI = tk.Entry(self.scrollable_frame, textvariable= self.svFdI,width=20, font=('ARIAL',10))
-        self.entryFdI.grid(column=3, row=20, padx=0, pady=5)
+        self.entryFdI.grid(column=1, row=20, padx=(320, 0), pady=5)
 
         self.svTdE = tk.StringVar()
         self.entryTdE = tk.Entry(self.scrollable_frame, textvariable= self.svTdE,width=20, font=('ARIAL',10))
-        self.entryTdE.grid(column=1, row=21, padx=0, pady=5)
+        self.entryTdE.grid(column=0, row=21, padx=(290, 0), pady=5)
 
         self.svSySP = tk.StringVar()
         self.entrySySP = tk.Entry(self.scrollable_frame, textvariable= self.svSySP,width=20, font=('ARIAL',10))
-        self.entrySySP.grid(column=3, row=21, padx=0, pady=5)
+        self.entrySySP.grid(column=1, row=21, padx=(320, 0), pady=5)
 
         self.svFC = tk.StringVar()
         self.entryFC = tk.Entry(self.scrollable_frame, textvariable= self.svFC,width=20, font=('ARIAL',10))
-        self.entryFC.grid(column=1, row=23, padx=0, pady=5)
+        self.entryFC.grid(column=0, row=23, padx=(320, 0), pady=5)
 
         self.svFR = tk.StringVar()
         self.entryFR = tk.Entry(self.scrollable_frame, textvariable= self.svFR,width=20, font=('ARIAL',10))
-        self.entryFR.grid(column=3, row=23, padx=0, pady=5)
+        self.entryFR.grid(column=1, row=23, padx=(330, 0), pady=5)
 
         self.svPresionA = tk.StringVar()
         self.entryPresionA = tk.Entry(self.scrollable_frame, textvariable= self.svPresionA,width=20, font=('ARIAL',10))
-        self.entryPresionA.grid(column=1, row=24, padx=0, pady=5)
+        self.entryPresionA.grid(column=0, row=24, padx=(320, 0), pady=5)
 
         self.svTC = tk.StringVar()
         self.entryTC = tk.Entry(self.scrollable_frame, textvariable= self.svTC,width=20, font=('ARIAL',10))
-        self.entryTC.grid(column=3, row=24, padx=0, pady=5)
+        self.entryTC.grid(column=1, row=24, padx=(330, 0), pady=5)
 
         self.svPeso = tk.StringVar()
         self.entryPeso = tk.Entry(self.scrollable_frame, textvariable= self.svPeso,width=20, font=('ARIAL',10))
-        self.entryPeso.grid(column=1, row=25, padx=0, pady=5)
+        self.entryPeso.grid(column=0, row=25, padx=(320, 0), pady=5)
 
         self.svTalla = tk.StringVar()
         self.entryTalla = tk.Entry(self.scrollable_frame, textvariable= self.svTalla,width=20, font=('ARIAL',10))
-        self.entryTalla.grid(column=3, row=25, padx=0, pady=5)
+        self.entryTalla.grid(column=1, row=25, padx=(330, 0), pady=5)
 
         self.svBuscar = tk.StringVar()
-        self.entryBuscar = tk.Entry(self.scrollable_frame, textvariable= self.svBuscar,width=20, font=('ARIAL',10))
+        self.entryBuscar = tk.Entry(self.scrollable_frame, textvariable= self.svBuscar,width=40, font=('ARIAL',10))
         self.entryBuscar.grid(column=0, row=27, padx=(190, 0), pady=5)
         
         # Añadir este código en el constructor __init__ o en algún lugar donde se configuren tus widgets
@@ -530,15 +531,15 @@ class VentanaNinos(tk.Frame):
         self.entrySySP.config(validate="key", validatecommand=(self.root.register(self.validate_letter), '%P'))
 
         #BOTON
-        self.btnGuardar = tk.Button(self.scrollable_frame, text='Guardar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#158645',cursor='hand2', activebackground='#35BD6F',command=self.guardar_datos_en_excel).grid(column=0, row=26, padx=0, pady=5)
+        self.btnGuardar = tk.Button(self.scrollable_frame, text='Guardar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#158645',cursor='hand2', activebackground='#35BD6F',command=self.guardar_datos_en_excel).grid(column=0, row=26, padx=(0, 20), pady=5)
 
-        self.btnModificar = tk.Button(self.scrollable_frame, text='Modificar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#1658A2',cursor='hand2', activebackground='#3D69F0').grid(column=1, row=26, padx=0, pady=5)
+        self.btnModificar = tk.Button(self.scrollable_frame, text='Modificar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#1658A2',cursor='hand2', activebackground='#3D69F0').grid(column=0, row=26, padx=(200, 0), pady=5)
 
-        self.btnEliminar = tk.Button(self.scrollable_frame, text='Eliminar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#D32F2F',cursor='hand2', activebackground='#E72D40',command=self.eliminar_seleccionado).grid(column=2, row=26, padx=0, pady=5)
+        self.btnEliminar = tk.Button(self.scrollable_frame, text='Eliminar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#D32F2F',cursor='hand2', activebackground='#E72D40',command=self.eliminar_seleccionado).grid(column=0, row=26, padx=(400, 0), pady=5)
 
-        self.btnImportar = tk.Button(self.scrollable_frame, text='Importar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#CF811E',cursor='hand2', activebackground='#E72D40').grid(column=3, row=26, padx=0, pady=5)
+        self.btnImportar = tk.Button(self.scrollable_frame, text='Importar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#CF811E',cursor='hand2', activebackground='#E72D40',command=self.importar_desde_excel).grid(column=1, row=26, padx=(0, 20), pady=5)
 
-        self.btnExportar = tk.Button(self.scrollable_frame, text='Exportar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#CF811E',cursor='hand2', activebackground='#E72D40',command=self.exportar_a_excel).grid(column=4, row=26, padx=15, pady=5)
+        self.btnExportar = tk.Button(self.scrollable_frame, text='Exportar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#CF811E',cursor='hand2', activebackground='#E72D40',command=self.exportar_a_excel).grid(column=1, row=26, padx=(200, 0), pady=5)
 
         self.btnBuscar = tk.Button(self.scrollable_frame, text='Buscar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#0F1010',cursor='hand2', activebackground='#FFFEFE', command=self.search_data).grid(column=1, row=27, padx=5, pady=5)
 
@@ -737,3 +738,7 @@ class VentanaNinos(tk.Frame):
         if archivo_guardado:
             # Guardar el DataFrame como un archivo Excel
             df.to_excel(archivo_guardado, index=False)
+
+    def importar_desde_excel(importar_datos_nuevos):
+        pass
+

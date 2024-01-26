@@ -1,6 +1,5 @@
 import tkinter as tk
 from tkinter import Menu
-
 from paciente.ventana_adultos import VentanaAdultos
 from paciente.ventana_ninos import VentanaNinos
 

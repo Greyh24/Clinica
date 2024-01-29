@@ -101,13 +101,11 @@ class VentanaAdultos(tk.Frame):
         self.entryedad.grid(column=1, row=1, padx=5, pady=5)
 
         self.svsexo_m = tk.IntVar()
-        self.checkbox_masculino = tk.Checkbutton(self.scrollable_frame, text='M', variable=self.svsexo_m,
-                                                  font=('ARIAL', 10, 'bold'), bg='#CDD8FF')
+        self.checkbox_masculino = tk.Checkbutton(self.scrollable_frame, text='M', variable=self.svsexo_m, font=('ARIAL', 10, 'bold'), bg='#CDD8FF')
         self.checkbox_masculino.grid(column=3, row=1, padx=(0, 1), pady=5)
 
         self.svsexo_f = tk.IntVar()
-        self.checkbox_femenino = tk.Checkbutton(self.scrollable_frame, text='F', variable=self.svsexo_f,
-                                                 font=('ARIAL', 10, 'bold'), bg='#CDD8FF')
+        self.checkbox_femenino = tk.Checkbutton(self.scrollable_frame, text='F', variable=self.svsexo_f,font=('ARIAL', 10, 'bold'), bg='#CDD8FF')
         self.checkbox_femenino.grid(column=3, row=1, padx=(90, 0), pady=5)
 
         self.svNombre = tk.StringVar()
@@ -152,7 +150,7 @@ class VentanaAdultos(tk.Frame):
         self.btnGuardar = tk.Button(self.scrollable_frame, text='Guardar', width=9, font=('Arial', 10, 'bold'),fg='#FFFEFE', bg='#158645', cursor='hand2', activebackground='#35BD6F',command=self.guardar_datos)
         self.btnGuardar.grid(column=3, row=5, padx=2, pady=5)
 
-        self.btnModificar = tk.Button(self.scrollable_frame, text='Modificar', width=9, font=('Arial', 10, 'bold'),fg='#FFFEFE', bg='#1658A2', cursor='hand2', activebackground='#3D69F0')
+        self.btnModificar = tk.Button(self.scrollable_frame, text='Modificar', width=9, font=('Arial', 10, 'bold'),fg='#FFFEFE', bg='#1658A2', cursor='hand2', activebackground='#3D69F0',command=self.modificar_datos)
         self.btnModificar.grid(column=4, row=5, padx=2, pady=5)
 
         self.btnEliminar = tk.Button(self.scrollable_frame, text='Eliminar', width=9, font=('Arial', 10, 'bold'),fg='#FFFEFE', bg='#D32F2F', cursor='hand2', activebackground='#E72D40',command=self.eliminar_datos_seleccionados)
@@ -226,12 +224,13 @@ class VentanaAdultos(tk.Frame):
                 writer.writerow(datos_fila)
 
     def actualizar_tabla(self):
-        # Clear the table before updating
+        # Limpiar la tabla antes de actualizar
         self.tabla.delete(*self.tabla.get_children())
 
-        # Update the table with the latest data
-        for row in self.datos_originales:
-            self.tabla.insert("", "end", values=row, tags=(row[0],))
+        # Iterar sobre los datos originales y agregarlos a la tabla
+        for paciente in self.datos_originales:
+            row_data = [paciente[field] for field in ['HC', 'Fecha', 'Edad', 'Sexo', 'Nombre', 'Apellido', 'FechaN', 'Telefono', 'DNI']]
+            self.tabla.insert("", "end", values=row_data, tags=(paciente['HC'],))
 
     def on_select(self, event):
         # Obtén el elemento seleccionado
@@ -259,7 +258,7 @@ class VentanaAdultos(tk.Frame):
             fecha_nacimiento = self.svFechaN.get()
             telefono = self.svtelef.get()
             dni = self.svDNI.get()
-           
+        
             # Validar campos antes de guardar
             if not hc or not fecha or not edad or not sexo or not nombre or not apellido or not fecha_nacimiento or not telefono or not dni:
                 messagebox.showwarning("Advertencia", "Todos los campos son obligatorios.")
@@ -277,13 +276,19 @@ class VentanaAdultos(tk.Frame):
                 'DNI': dni
             }
 
-            # Verificar si ya existe un paciente con la misma Historia Clínica
-            if any(paciente['HC'] == hc for paciente in self.datos_originales):
-                messagebox.showwarning("Advertencia", "Ya existe un paciente con la misma Historia Clínica.")
-                return
+            # Buscar si ya existe un paciente con el mismo HC y fecha
+            paciente_existente = None
+            for idx, paciente in enumerate(self.datos_originales):
+                if paciente['HC'] == hc and paciente['Fecha'] == fecha:
+                    paciente_existente = idx
+                    break
 
-            # Guardar en la lista de datos_originales
-            self.datos_originales.append(nuevo_paciente)
+            # Si se encuentra un paciente existente, reemplazar sus datos
+            if paciente_existente is not None:
+                self.datos_originales[paciente_existente] = nuevo_paciente
+            else:
+                # Si no se encuentra, agregar el nuevo paciente a la lista
+                self.datos_originales.append(nuevo_paciente)
 
             # Insertar en la tabla y guardar en el archivo CSV
             row_data = [nuevo_paciente[field] for field in ['HC', 'Fecha', 'Edad', 'Sexo', 'Nombre', 'Apellido', 'FechaN', 'Telefono', 'DNI']]
@@ -299,6 +304,8 @@ class VentanaAdultos(tk.Frame):
 
         except Exception as e:
             print("Error", f"Error al guardar datos: {str(e)}")
+        self.actualizar_tabla()
+
 
     def guardar_en_csv(self, datos):
         try:
@@ -511,6 +518,41 @@ class VentanaAdultos(tk.Frame):
         except Exception as e:
             messagebox.showerror("Error", f"Error al importar desde Excel: {str(e)}")
     
+    def modificar_datos(self):
+        # Obtener la fila seleccionada
+        selected_item = self.tabla.selection()
+        if not selected_item:
+            messagebox.showerror("Error", "Seleccione un paciente para modificar.")
+            return
+        self.selected_index = selected_item[0]
+        # Obtener los valores de la fila seleccionada
+        row = self.tabla.item(self.selected_index, 'values')
+        if not row:
+            messagebox.showerror("Error", "No se encontraron datos para modificar.")
+            return
+        # Actualizar los campos con los valores de la fila seleccionada
+        self.svHC.set(row[0])
+        self.svfecha.set(row[1])
+        self.entryedad.delete(0, tk.END)  # Limpiar el campo antes de insertar el nuevo valor
+        self.entryedad.insert(0, row[2])  # Insertar el nuevo valor en el campo
+        if row[3] == 'M':
+            self.svsexo_m.set(1)
+        else:
+            self.svsexo_f.set(1)
+        self.svNombre.set(row[4])
+        self.svApellido.set(row[5])
+        self.svFechaN.set(row[6])
+        self.svtelef.set(row[7])
+        self.svDNI.set(row[8])
+
+        # Aquí puedes poner la modificación sugerida para manejar el error KeyError: 0
+        if row:
+            self.tabla.insert("", "end", values=row, tags=(row[0],))
+        else:
+            print("La lista row está vacía.")
+
+        self.actualizar_tabla()
+
 if __name__ == "__main__":
     root = tk.Tk()
     app = VentanaAdultos(root)

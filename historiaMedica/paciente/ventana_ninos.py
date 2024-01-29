@@ -272,7 +272,7 @@ class VentanaNinos(tk.Frame):
 
         self.lblTalla =tk.Label(self.scrollable_frame, text='Talla: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=1, row=25, padx=(0, 20), pady=5)
 
-        self.lblBuscar =tk.Label(self.scrollable_frame, text='Buscar: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=0, row=27,  padx=(0, 1), pady=5)
+        self.lblBuscar =tk.Label(self.scrollable_frame, text='Buscar: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=0, row=27,  padx=(0, 20), pady=5)
 
         #entry
         self.svHC = tk.StringVar()
@@ -486,13 +486,12 @@ class VentanaNinos(tk.Frame):
         self.entryTalla.grid(column=1, row=25, padx=(330, 0), pady=5)
 
         self.svBuscar = tk.StringVar()
-        self.entryBuscar = tk.Entry(self.scrollable_frame, textvariable= self.svBuscar,width=40, font=('ARIAL',10))
+        self.entryBuscar = tk.Entry(self.scrollable_frame, textvariable= self.svBuscar,width=20, font=('ARIAL',10))
         self.entryBuscar.grid(column=0, row=27, padx=(190, 0), pady=5)
         
         # Añadir este código en el constructor __init__ o en algún lugar donde se configuren tus widgets
         self.svBuscar.trace_add("write", lambda *args: self.verificar_y_cargar_tabla())
 
-        
         # validación para aceptar solo números
         self.entryDNI.config(validate="key", validatecommand=(self.root.register(self.validate_number), '%P'))
         self.entryedad.config(validate="key", validatecommand=(self.root.register(self.validate_number), '%P'))
@@ -515,20 +514,11 @@ class VentanaNinos(tk.Frame):
         self.entryMd.config(validate="key", validatecommand=(self.root.register(self.validate_letter), '%P'))
         self.entryEspe.config(validate="key", validatecommand=(self.root.register(self.validate_letter), '%P'))
         self.entryPaci.config(validate="key", validatecommand=(self.root.register(self.validate_letter), '%P'))
-        self.entryDireccion.config(validate="key", validatecommand=(self.root.register(self.validate_letter), '%P'))
         self.entryOcup.config(validate="key", validatecommand=(self.root.register(self.validate_letter), '%P'))
         self.entryDpadre.config(validate="key", validatecommand=(self.root.register(self.validate_letter), '%P'))
         self.entryDMadre.config(validate="key", validatecommand=(self.root.register(self.validate_letter), '%P'))
         self.entryDatosApo.config(validate="key", validatecommand=(self.root.register(self.validate_letter), '%P'))
         self.entryVinculo.config(validate="key", validatecommand=(self.root.register(self.validate_letter), '%P'))
-        self.entryOTROS.config(validate="key", validatecommand=(self.root.register(self.validate_letter), '%P'))
-        self.entryAntecedentesP.config(validate="key", validatecommand=(self.root.register(self.validate_letter), '%P'))
-        self.entryAntecedentesF.config(validate="key", validatecommand=(self.root.register(self.validate_letter), '%P'))
-        self.entryRA.config(validate="key", validatecommand=(self.root.register(self.validate_letter), '%P'))
-        self.entryMC.config(validate="key", validatecommand=(self.root.register(self.validate_letter), '%P'))
-        self.entryFdI.config(validate="key", validatecommand=(self.root.register(self.validate_letter), '%P'))
-        self.entryTdE.config(validate="key", validatecommand=(self.root.register(self.validate_letter), '%P'))
-        self.entrySySP.config(validate="key", validatecommand=(self.root.register(self.validate_letter), '%P'))
 
         #BOTON
         self.btnGuardar = tk.Button(self.scrollable_frame, text='Guardar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#158645',cursor='hand2', activebackground='#35BD6F',command=self.guardar_datos_en_excel).grid(column=0, row=26, padx=(0, 20), pady=5)
@@ -541,7 +531,7 @@ class VentanaNinos(tk.Frame):
 
         self.btnExportar = tk.Button(self.scrollable_frame, text='Exportar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#CF811E',cursor='hand2', activebackground='#E72D40',command=self.exportar_a_excel).grid(column=1, row=26, padx=(200, 0), pady=5)
 
-        self.btnBuscar = tk.Button(self.scrollable_frame, text='Buscar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#0F1010',cursor='hand2', activebackground='#FFFEFE', command=self.search_data).grid(column=1, row=27, padx=5, pady=5)
+        self.btnBuscar = tk.Button(self.scrollable_frame, text='Buscar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#0F1010',cursor='hand2', activebackground='#FFFEFE', command=self.search_data).grid(column=0, row=27, padx=(450, 0), pady=5)
 
     def guardar_datos_en_excel(self):
         # Mapear el valor de sexo

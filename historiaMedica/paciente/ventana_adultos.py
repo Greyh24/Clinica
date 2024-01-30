@@ -214,14 +214,6 @@ class VentanaAdultos(tk.Frame):
         # Manejar la selección de fila
         self.tabla.bind("<ButtonRelease-1>", self.on_select)
         self.cargar_formulario()
-    
-    def actualizar_archivo_csv(self):
-        with open("datos_adultos.csv", mode="w", newline="", encoding="utf-8") as file:
-            writer = csv.writer(file)
-            writer.writerow(["Historia Clínica", "Fecha", "Edad", "Sexo", "Nombres", "Apellidos", "Fecha de Nacimiento", "Teléfono", "DNI"])
-            for fila_tabla in self.tabla.get_children():
-                datos_fila = self.tabla.item(fila_tabla)['values']
-                writer.writerow(datos_fila)
 
     def actualizar_tabla(self):
         # Limpiar la tabla antes de actualizar
@@ -293,7 +285,7 @@ class VentanaAdultos(tk.Frame):
             # Insertar en la tabla y guardar en el archivo CSV
             row_data = [nuevo_paciente[field] for field in ['HC', 'Fecha', 'Edad', 'Sexo', 'Nombre', 'Apellido', 'FechaN', 'Telefono', 'DNI']]
             self.tabla.insert("", "end", values=row_data, tags=(hc,))
-            self.guardar_en_csv(row_data)
+            self.guardar_en_csv(row_data)  # Aquí pasas los datos que deseas guardar al método
 
             # Limpiar los campos después de guardar
             for entry in [self.entryHC, self.entryfecha, self.entryedad, self.entryNombre, self.entryApellido, self.entryFechaN, self.entrytelef, self.entryDNI]:
@@ -306,23 +298,16 @@ class VentanaAdultos(tk.Frame):
             print("Error", f"Error al guardar datos: {str(e)}")
         self.actualizar_tabla()
 
-
     def guardar_en_csv(self, datos):
         try:
-            with open("datos_adultos.csv", mode="a", newline="", encoding="utf-8") as file:
+            with open("datos_adultos.csv", mode="w", newline="", encoding="utf-8") as file:
                 writer = csv.writer(file)
-                writer.writerow(datos)
+                writer.writerow(["Historia Clínica", "Fecha", "Edad", "Sexo", "Nombres", "Apellidos", "Fecha de Nacimiento", "Teléfono", "DNI"])
+                for paciente in self.datos_originales:
+                    writer.writerow([paciente[field] for field in ['HC', 'Fecha', 'Edad', 'Sexo', 'Nombre', 'Apellido', 'FechaN', 'Telefono', 'DNI']])
         except Exception as e:
             print("Error", f"Error al guardar en CSV: {str(e)}")
 
-        # Get the selected item
-        selected_item = self.tabla.selection()
-
-        if selected_item:
-            # Do something with the selected item
-            print(f"Selected item: {selected_item}")
-            print(f"Item data: {self.tabla.item(selected_item)}")
-            print(f"Datos: {datos}")
 
     def cargar_formulario(self):
         try:
@@ -524,18 +509,18 @@ class VentanaAdultos(tk.Frame):
         if not selected_item:
             messagebox.showerror("Error", "Seleccione un paciente para modificar.")
             return
-        self.selected_index = selected_item[0]
+
         # Obtener los valores de la fila seleccionada
-        row = self.tabla.item(self.selected_index, 'values')
+        row = self.tabla.item(selected_item, 'values')
         if not row:
             messagebox.showerror("Error", "No se encontraron datos para modificar.")
             return
+
         # Actualizar los campos con los valores de la fila seleccionada
         self.svHC.set(row[0])
         self.svfecha.set(row[1])
-        self.entryedad.delete(0, tk.END)  # Limpiar el campo antes de insertar el nuevo valor
-        self.entryedad.insert(0, row[2])  # Insertar el nuevo valor en el campo
-        if row[3] == 'M':
+        self.svedad.set(row[2])
+        if row[3].lower() == 'masculino':
             self.svsexo_m.set(1)
         else:
             self.svsexo_f.set(1)
@@ -544,14 +529,35 @@ class VentanaAdultos(tk.Frame):
         self.svFechaN.set(row[6])
         self.svtelef.set(row[7])
         self.svDNI.set(row[8])
+        # Actualizar el archivo CSV
+        self.actualizar_archivo_csv()
+        # Modificar los valores necesarios en la fila seleccionada
+        sexo_modificado = 'Masculino' if self.svsexo_m.get() else 'Femenino'
+        nueva_fila = (
+            self.svHC.get(), 
+            self.svfecha.get(), 
+            self.svedad.get(), 
+            sexo_modificado, 
+            self.svNombre.get(), 
+            self.svApellido.get(), 
+            self.svFechaN.get(), 
+            self.svtelef.get(), 
+            self.svDNI.get()
+        )
+        self.tabla.item(selected_item, values=nueva_fila)
 
-        # Aquí puedes poner la modificación sugerida para manejar el error KeyError: 0
-        if row:
-            self.tabla.insert("", "end", values=row, tags=(row[0],))
-        else:
-            print("La lista row está vacía.")
+    def actualizar_archivo_csv(self):
+        try:
+            with open("datos_adultos.csv", mode="w", newline="", encoding="utf-8") as file:
+                writer = csv.writer(file)
+                writer.writerow(["Historia Clínica", "Fecha", "Edad", "Sexo", "Nombres", "Apellidos", "Fecha de Nacimiento", "Teléfono", "DNI"])
+                for fila_tabla in self.tabla.get_children():
+                    datos_fila = self.tabla.item(fila_tabla)['values']
+                    writer.writerow(datos_fila)
+        except Exception as e:
+            print("Error", f"Error al guardar en CSV: {str(e)}")
 
-        self.actualizar_tabla()
+
 
 if __name__ == "__main__":
     root = tk.Tk()

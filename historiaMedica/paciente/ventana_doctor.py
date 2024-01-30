@@ -1,6 +1,6 @@
 import tkinter as tk
 import matplotlib.pyplot as plt
-from tkinter import messagebox,filedialog,ttk
+from tkinter import messagebox,filedialog,ttk,Scrollbar
 from tkcalendar import DateEntry
 from time import strftime
 from PIL import Image, ImageTk,ImageGrab
@@ -1238,114 +1238,48 @@ class VentanaDiagnosticoMedico(tk.Frame):
 
         # Obtener valores de las variables
         paciente =self.svPaci.get()
-        medico = self.svMedRes.get()
-        edad = self.svEdad.get()
-        sexo = self.svSex.get()
-        direccion = self.svDir.get()
-        distrito = self.svDis.get()
-        responsable = self.svResp.get()
-        telefono = self.svTel.get()
-        ficha = self.svFicha.get()
         fecha = self.svfechaP.get()
-        hora = self.svHoraP.get()
-        
+        Diagnóstico_final = self.svDF.get()
 
         # Etiquetas para los campos básicos
         tk.Label(main_frame, text=f'Paciente: {paciente}').grid(row=0, column=2, sticky="w", padx=10, pady=5)
-        tk.Label(main_frame, text=f'Medico: {medico}').grid(row=0, column=4, sticky="w", padx=10, pady=5)
-        tk.Label(main_frame, text=f'Edad: {edad}').grid(row=1, column=2, sticky="w", padx=10, pady=5)
-        tk.Label(main_frame, text=f'Sexo: {sexo}').grid(row=1, column=3, sticky="w", padx=10, pady=5)
-        tk.Label(main_frame, text=f'Dirección: {direccion}').grid(row=1, column=4, sticky="w", padx=10, pady=5)
-        tk.Label(main_frame, text=f'Distrito: {distrito}').grid(row=2, column=2, sticky="w", padx=10, pady=5)
-        tk.Label(main_frame, text=f'Responsable: {responsable}').grid(row=2, column=3, sticky="w", padx=10, pady=5)
-        tk.Label(main_frame, text=f'Telefono: {telefono}').grid(row=2, column=4, sticky="w")
-        tk.Label(main_frame, text=f'Ficha: {ficha}').grid(row=3, column=2, sticky="w", padx=10, pady=5)
-        tk.Label(main_frame, text=f'Fecha: {fecha}').grid(row=3, column=3, sticky="w", padx=10, pady=5)
-        tk.Label(main_frame, text=f'Hora: {hora}').grid(row=3, column=4, sticky="w", padx=10, pady=5)
-        
-        # Etiquetas para los campos de Especialidad
-        especialidades = []
-        if self.svMedicina.get():
-            especialidades.append("Medicina")
-        if self.svPediatria.get():
-            especialidades.append("Pediatria")
-        if self.svCirugia.get():
-            especialidades.append("Cirugia")
-        if self.svGineco_OBS.get():
-            especialidades.append("Gineco OBS")
+        tk.Label(main_frame, text=f'Fecha: {fecha}').grid(row=1, column=2, sticky="w", padx=10, pady=5)
+        tk.Label(main_frame, text=f'Diagnóstico Final:').grid(row=2, column=0, sticky="w", padx=5, pady=5)
 
-        tk.Label(main_frame, text=f'Especialidad: {", ".join(especialidades)}').grid(row=4, column=2, columnspan=3, sticky="w", padx=10, pady=20)
+        # Crear el widget Text para el diagnóstico final y la barra de desplazamiento
+        self.text_diagnostico = tk.Text(main_frame, width=30, height=10, font=('ARIAL', 10,'bold'))
+        self.text_diagnostico.grid(row=2, column=1, padx=5, pady=5, columnspan=2)
 
-        # Etiquetas para los campos de signos vitales
-        tk.Label(main_frame, text=f'P.A: {self.svPA.get()}').grid(row=5, column=2, sticky="w", padx=10, pady=5)
-        tk.Label(main_frame, text=f'FC: {self.svFC.get()}').grid(row=5, column=3, sticky="w", padx=10, pady=5)
-        tk.Label(main_frame, text=f'FR: {self.svFR.get()}').grid(row=5, column=4, sticky="w", padx=10, pady=5)
-        tk.Label(main_frame, text=f'Temp: {self.svTemp.get()}').grid(row=6, column=2, sticky="w", padx=10, pady=5)
-        tk.Label(main_frame, text=f'SO: {self.svSO.get()}').grid(row=6, column=3, sticky="w", padx=10, pady=5)
-        tk.Label(main_frame, text=f'Peso: {self.svPeso.get()}').grid(row=6, column=4, sticky="w", padx=10, pady=5)
+        scrollbar = Scrollbar(main_frame, command=self.text_diagnostico.yview)
+        scrollbar.grid(row=2, column=4, sticky="ns")
+        self.text_diagnostico.config(yscrollcommand=scrollbar.set)
 
-        # Etiquetas para los campos de texto
-        tk.Label(main_frame, text=f'Tratamiento:').grid(row=7, column=0, sticky="w")
-        tratamiento_text = self.entryTratam.get("1.0", tk.END).strip()
-        tk.Label(main_frame, text=tratamiento_text).grid(row=8, column=0, sticky="w")
+        # Asignar el diagnóstico final al widget Text
+        self.text_diagnostico.insert(tk.END, Diagnóstico_final)
 
-        tk.Label(main_frame, text='Procedimientos:').grid(row=9, column=0, sticky="w")
-        procedimientos_text = self.entryProcedimientos.get("1.0", tk.END).strip()
-        tk.Label(main_frame, text=procedimientos_text).grid(row=10, column=0, sticky="w")
+        # Botones
+        tk.Button(main_frame, text="Guardar", command=self.guardar_datosPdf, width=12, font=('Arial', 10, 'bold'), fg='#FFFEFE', bg='#0F1010', cursor='hand2', activebackground='#FFFEFE').grid(row=3, column=1, pady=5)
+        tk.Button(main_frame, text="Cerrar", command=self.root.destroy, width=12, font=('Arial', 10, 'bold'), fg='#FFFEFE', bg='#CF811E', cursor='hand2', activebackground='#E72D40').grid(row=3, column=2, pady=5)
 
-        tk.Label(main_frame, text='Indicaciones:').grid(row=11, column=0, sticky="w")
-        indicaciones_text = self.entryIndicaciones.get("1.0", tk.END).strip()
-        tk.Label(main_frame, text=indicaciones_text).grid(row=12, column=0, sticky="w")
-
-        tk.Label(main_frame, text='Observaciones:').grid(row=13, column=0, sticky="w")
-        observaciones_text = self.entryObservaciones.get("1.0", tk.END).strip()
-        tk.Label(main_frame, text=observaciones_text).grid(row=14, column=0, sticky="w")
-
-        tk.Button(nueva_ventana, text="Guardar", command=self.guardar_datosPdf, width=12, font=('Arial', 10, 'bold'), fg='#FFFEFE', bg='#0F1010', cursor='hand2', activebackground='#FFFEFE').grid(row=15, column=0, pady=5)
-        tk.Button(nueva_ventana, text="Cerrar", command=nueva_ventana.destroy, width=12, font=('Arial', 10, 'bold'), fg='#FFFEFE', bg='#CF811E', cursor='hand2', activebackground='#E72D40').grid(row=17, column=0, pady=5)
-
-    #funcion utilizada para crear especialidades en la receta
-    def get_especialidades(self):
-        especialidades = []
-        if self.svMedicina.get():
-            especialidades.append("Medicina")
-        if self.svPediatria.get():
-            especialidades.append("Pediatria")
-        if self.svCirugia.get():
-            especialidades.append("Cirugia")
-        if self.svGineco_OBS.get():
-            especialidades.append("Gineco OBS")
-        return especialidades
-    
     #funcion utilizada para guardar la receta
     def guardar_datosPdf(self):
         try:
+            # Obtener el texto del diagnóstico final
+            diagnostico_final = self.text_diagnostico.get('1.0', tk.END).strip()
+
             # Crear un gráfico con los datos
             fig, ax = plt.subplots(figsize=(8, 6))
-            ax.text(0.5, 0.5, "Datos de la Receta Médica:\n\n" +
-                    f"Paciente: {self.svPaci.get()}\n" +
-                    f"medico: {self.svMedRes.get()}\n" +
-                    f"Edad: {self.svEdad.get()}\n" +
-                    f"Sexo: {self.svSex.get()}\n" +
-                    f"Dirección: {self.svDir.get()}\n" +
-                    f"Distrito: {self.svDis.get()}\n" +
-                    f"Responsable: {self.svResp.get()}\n" +
-                    f"Teléfono: {self.svTel.get()}\n" +
-                    f"Ficha: {self.svFicha.get()}\n" +
-                    f"Fecha: {self.svfechaP.get()}\n" +
-                    f"Hora: {self.svHoraP.get()}\n" +
-                    f"Especialidad: {', '.join(self.get_especialidades())}\n" +
-                    f"P.A: {self.svPA.get()}\n" +
-                    f"FC: {self.svFC.get()}\n" +
-                    f"FR: {self.svFR.get()}\n" +
-                    f"Temp: {self.svTemp.get()}\n" +
-                    f"SO: {self.svSO.get()}\n" +
-                    f"Peso: {self.svPeso.get()}\n" +
-                    f"Tratamiento:\n{self.entryTratam.get('1.0', tk.END).strip()}\n" +
-                    f"Procedimientos:\n{self.entryProcedimientos.get('1.0', tk.END).strip()}\n" +
-                    f"Indicaciones:\n{self.entryIndicaciones.get('1.0', tk.END).strip()}\n" +
-                    f"Observaciones:\n{self.entryObservaciones.get('1.0', tk.END).strip()}", 
-                    fontsize=12, ha='center', va='center')
+
+            # Dividir el texto del diagnóstico en varias líneas para que se ajuste al ancho de la página
+            lines = diagnostico_final.split('\n')
+            max_chars_per_line = 30  # Número máximo de caracteres por línea
+            formatted_diagnosis = '\n'.join([line[i:i+max_chars_per_line] for line in lines for i in range(0, len(line), max_chars_per_line)])
+
+            ax.text(0.5, 0.5, "Datos de la Receta Médica:\n\n\n" +
+                    f"Paciente: {self.svPaci.get()}\n\n" +
+                    f"Fecha: {self.svfechaP.get()}\n\n" +
+                    f"Diagnóstico:\n{formatted_diagnosis}", 
+                    fontsize=14, ha='center', va='center')
 
             ax.axis('off')
 
@@ -1356,7 +1290,7 @@ class VentanaDiagnosticoMedico(tk.Frame):
                 plt.close()  # Cerrar la ventana de vista previa
                 return  # El usuario canceló el diálogo de guardado
 
-                # Guardar el gráfico en el PDF
+            # Guardar el gráfico en el PDF
             with PdfPages(ruta_archivo) as pdf:
                 pdf.savefig(fig)
                 plt.close()  # Cerrar la ventana de vista previa
@@ -1364,26 +1298,6 @@ class VentanaDiagnosticoMedico(tk.Frame):
             messagebox.showinfo("Imprimir", f"Datos guardados exitosamente en '{ruta_archivo}'.")
         except Exception as e:
             messagebox.showerror("Error", f"Ocurrió un error al imprimir los datos: {str(e)}")
-
-    #funcion utilizada para guardar especialidades en pdf de la receta 
-    def imprimir_ventana(self):
-        # Obtén la posición y dimensiones de la ventana
-        x = self.root.winfo_rootx()
-        y = self.root.winfo_rooty()
-        w = self.root.winfo_width()
-        h = self.root.winfo_height()
-
-        # Captura el contenido de la ventana como una imagen
-        imagen = ImageGrab.grab(bbox=(x, y, x + w, y + h))
-
-        # Genera un nombre único con la fecha y hora actual
-        fecha_actual = datetime.now().strftime("%Y%m%d_%H%M%S")
-        nombre_archivo = f"Ventana_Imprimida_{fecha_actual}.png"
-
-        # Guarda la imagen
-        imagen.save(nombre_archivo)
-
-        print(f"Ventana impresa y guardada como '{nombre_archivo}'.")
 
     def cerrar_ventana(self):
     # Cierra la ventana principal

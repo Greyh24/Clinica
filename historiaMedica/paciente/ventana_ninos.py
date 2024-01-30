@@ -4,6 +4,7 @@ import openpyxl
 from tkcalendar import DateEntry
 from tkinter import ttk, filedialog, messagebox
 from time import strftime
+from datetime import datetime
 from openpyxl import load_workbook
 
 
@@ -181,6 +182,63 @@ class VentanaNinos(tk.Frame):
         self.entryHDA.delete(0, tk.END)
         self.entryHDA.insert(0, hora_actual)
     
+    def limpiar_datos(self):
+        # Vaciar o deseleccionar los datos de los StringVar
+        self.svHC.set('')
+        self.svMd.set('')
+        self.sveEspe.set('')
+        self.svFDA.set('')
+        self.svHDA.set('')
+        self.svPaci.set('')
+        self.svDNI.set('')
+        self.svedad.set('')
+        self.svFDN.set('')
+        self.svGS.set('')
+        self.svRH.set('')
+        self.svDireccion.set('')
+        self.svOcup.set('')
+        self.svDpadre.set('')
+        self.svDNIp.set('')
+        self.svTelefP.set('')
+        self.svDMadre.set('')
+        self.svDNIMadre.set('')
+        self.svTelefonoMadre.set('')
+        self.svDatosApo.set('')
+        self.svDNIDDA.set('')
+        self.svTelefonoApoderado.set('')
+        self.svVinculo.set('')
+        self.svOTROS.set('')
+        self.svAntecedentesP.set('')
+        self.svAntecedentesF.set('')
+        self.svRA.set('')
+        self.svMC.set('')
+        self.svFdI.set('')
+        self.svTdE.set('')
+        self.svSySP.set('')
+        self.svFC.set('')
+        self.svFR.set('')
+        self.svPresionA.set('')
+        self.svTC.set('')
+        self.svPeso.set('')
+        self.svTalla.set('')
+
+        # Deseleccionar los datos de los BooleanVar
+        self.svsexo_m.set(0)
+        self.svsexo_f.set(0)
+        self.svBCG.set(False)
+        self.svHVB.set(False)
+        self.svPENTAVALENTE.set(False)
+        self.svANTIPOLIO.set(False)
+        self.svANTINEUMOCOCICA.set(False)
+        self.svDT.set(False)
+        self.svSPR.set(False)
+        self.svROTAVIRUS.set(False)
+        self.svINFLUENZA_PED.set(False)
+        self.svVARICELA.set(False)
+        self.svDPR.set(False)
+        self.svAPO.set(False)
+        self.svANTIAMARILICA.set(False)
+
     def camposPacienteNiño(self):
        
         #labels
@@ -198,7 +256,7 @@ class VentanaNinos(tk.Frame):
 
         self.lblPaci =tk.Label(self.scrollable_frame, text='Paciente: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=0, row=4, padx=(0, 1), pady=5)
 
-        self.lblDNI =tk.Label(self.scrollable_frame, text='DNI: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=1, row=4, padx=(0, 1), pady=5)
+        self.lblDNI =tk.Label(self.scrollable_frame, text='DNI: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=1, row=4, padx=(0, 5), pady=5)
 
         self.lblSexo =tk.Label(self.scrollable_frame, text='Sexo: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=2, row=4, padx=(0, 1), pady=5)
 
@@ -272,7 +330,7 @@ class VentanaNinos(tk.Frame):
 
         self.lblTalla =tk.Label(self.scrollable_frame, text='Talla: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=1, row=25, padx=(0, 20), pady=5)
 
-        self.lblBuscar =tk.Label(self.scrollable_frame, text='Buscar: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=0, row=27,  padx=(0, 20), pady=5)
+        self.lblBuscar =tk.Label(self.scrollable_frame, text='Buscar por Hc o DNI: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=0, row=27,  padx=(0, 20), pady=5)
 
         #entry
         self.svHC = tk.StringVar()
@@ -288,7 +346,7 @@ class VentanaNinos(tk.Frame):
         self.entryEspe.grid(column=1, row=1, padx=(290, 0), pady=5)
 
         self.svFDA = tk.StringVar()
-        self.entryFDA = DateEntry(self.scrollable_frame, textvariable= self.svFDA,width=20, font=('ARIAL',10))
+        self.entryFDA = DateEntry(self.scrollable_frame, textvariable= self.svFDA,width=20, font=('ARIAL',10),date_pattern='dd-mm-yyyy')
         self.entryFDA.grid(column=0, row=2, padx=(290, 0), pady=5)
 
         self.svHDA = tk.StringVar()
@@ -307,7 +365,7 @@ class VentanaNinos(tk.Frame):
         # checkboxes para el género
         self.svsexo_m = tk.IntVar()
         self.checkbox_masculino = tk.Checkbutton(self.scrollable_frame, text='M', variable=self.svsexo_m, font=('ARIAL', 10, 'bold'), bg='#CDD8FF')
-        self.checkbox_masculino.grid(column=2, row=4,columnspan=2, padx=(0,1), pady=5)
+        self.checkbox_masculino.grid(column=2, row=4,columnspan=2, padx=(0,10), pady=5)
 
         self.svsexo_f = tk.IntVar()
         self.checkbox_femenino = tk.Checkbutton(self.scrollable_frame, text='F', variable=self.svsexo_f, font=('ARIAL', 10, 'bold'), bg='#CDD8FF')
@@ -487,7 +545,7 @@ class VentanaNinos(tk.Frame):
 
         self.svBuscar = tk.StringVar()
         self.entryBuscar = tk.Entry(self.scrollable_frame, textvariable= self.svBuscar,width=20, font=('ARIAL',10))
-        self.entryBuscar.grid(column=0, row=27, padx=(190, 0), pady=5)
+        self.entryBuscar.grid(column=0, row=27, padx=(290, 0), pady=5)
         
         # Añadir este código en el constructor __init__ o en algún lugar donde se configuren tus widgets
         self.svBuscar.trace_add("write", lambda *args: self.verificar_y_cargar_tabla())
@@ -531,9 +589,12 @@ class VentanaNinos(tk.Frame):
 
         self.btnExportar = tk.Button(self.scrollable_frame, text='Exportar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#CF811E',cursor='hand2', activebackground='#E72D40',command=self.exportar_a_excel).grid(column=1, row=26, padx=(200, 0), pady=5)
 
-        self.btnBuscar = tk.Button(self.scrollable_frame, text='Buscar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#0F1010',cursor='hand2', activebackground='#FFFEFE', command=self.search_data).grid(column=0, row=27, padx=(450, 0), pady=5)
+        self.btnBuscar = tk.Button(self.scrollable_frame, text='Buscar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#0F1010',cursor='hand2', activebackground='#FFFEFE', command=self.search_data).grid(column=0, row=27, padx=(550, 0), pady=5)
 
     def guardar_datos_en_excel(self):
+        # Obtener la fecha actual en el formato deseado ("dd-mm-yyyy")
+        fecha_actual = datetime.now().strftime("%d-%m-%Y")
+
         # Mapear el valor de sexo
         sexo = 'Masculino' if self.svsexo_m.get() else 'Femenino' if self.svsexo_f.get() else ''
 
@@ -620,6 +681,7 @@ class VentanaNinos(tk.Frame):
         df_final.to_csv('datos_Niños.csv', index=False)
         print('Datos agregados correctamente en el archivo CSV.')
         
+        self.limpiar_datos()
         self.load_data_to_table()
 
     def load_data_to_table(self):

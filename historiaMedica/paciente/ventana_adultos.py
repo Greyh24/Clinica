@@ -308,7 +308,6 @@ class VentanaAdultos(tk.Frame):
         except Exception as e:
             print("Error", f"Error al guardar en CSV: {str(e)}")
 
-
     def cargar_formulario(self):
         try:
             with open("datos_adultos.csv", mode="r", encoding="utf-8") as file:
@@ -556,7 +555,6 @@ class VentanaAdultos(tk.Frame):
                     writer.writerow(datos_fila)
         except Exception as e:
             print("Error", f"Error al guardar en CSV: {str(e)}")
-
 
 
 if __name__ == "__main__":

@@ -41,12 +41,16 @@ class HistoriaMedicaApp:
         self.paciente_niño_frame.pack_forget()
         # Muestra la interfaz de paciente adulto
         self.paciente_frame.pack(fill=tk.BOTH, expand=True)
+        # Actualiza la tabla de pacientes adultos
+        self.paciente_frame.actualizar_tabla()
 
     def show_paciente_niño(self):
         # Oculta la interfaz de paciente adulto
         self.paciente_frame.pack_forget()
         # Muestra la interfaz de paciente niño
         self.paciente_niño_frame.pack(fill=tk.BOTH, expand=True)
+        # Actualiza la tabla de pacientes niños
+        self.paciente_niño_frame.load_data_to_table()
 
     def center_window(self):
         # Función para centrar la ventana principal

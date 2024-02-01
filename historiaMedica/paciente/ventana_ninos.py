@@ -2,7 +2,7 @@ import tkinter as tk
 import pandas as pd
 import openpyxl
 from tkcalendar import DateEntry
-from tkinter import ttk, filedialog, messagebox
+from tkinter import ttk, filedialog
 from time import strftime
 from datetime import datetime
 from openpyxl import load_workbook
@@ -71,7 +71,7 @@ class VentanaNinos(tk.Frame):
         
         # Configurar encabezados de columnas
         self.table.heading("#0", text="ID")
-        self.table.heading("Columna1", text="Nº de HC")
+        self.table.heading("Columna1", text="Historia_Clinica")
         self.table.heading("Columna2", text="Médico")
         self.table.heading("Columna3", text="Especialidad")
         self.table.heading("Columna4", text="Fecha de Atención")
@@ -95,7 +95,7 @@ class VentanaNinos(tk.Frame):
         self.table.heading("Columna22", text="DNI del Apoderado")
         self.table.heading("Columna23", text="Telefono del Apoderado")
         self.table.heading("Columna24", text="Vinculo con el Menor")
-        self.table.heading("Columna25", text="Otros")
+        self.table.heading("Columna25", text="Esquema de Vacunas")
         self.table.heading("Columna26", text="Antecedentes Personales")
         self.table.heading("Columna27", text="Antecedentes Familiares")
         self.table.heading("Columna28", text="RAM/Alergias")
@@ -152,7 +152,7 @@ class VentanaNinos(tk.Frame):
         self.table.column("Columna38", anchor=tk.CENTER, width=100)
         
         # Colocar la tabla en la posición deseada
-        self.table.grid(row=30, column=0, columnspan=38, padx=5, pady=10)
+        self.table.grid(row=30, column=0, columnspan=37, padx=5, pady=10)
 
         # Establecer un ancho fijo de 10 para cada columna
         for col in self.table["columns"]:
@@ -376,7 +376,7 @@ class VentanaNinos(tk.Frame):
         self.entryedad.grid(column=0, row=5, padx=(290, 0), pady=5)
 
         self.svFDN = tk.StringVar()
-        self.entryFDN = DateEntry(self.scrollable_frame, textvariable= self.svFDN,width=20, font=('ARIAL',10))
+        self.entryFDN = DateEntry(self.scrollable_frame, textvariable= self.svFDN,width=20, font=('ARIAL',10),date_pattern='dd-mm-yyyy')
         self.entryFDN.grid(column=1, row=5, padx=(290, 0), pady=5)
 
         self.svGS = tk.StringVar()
@@ -626,29 +626,29 @@ class VentanaNinos(tk.Frame):
         # Crear un diccionario con los datos recopilados
         datos = {
             'Historia_Clinica': [self.svHC.get()],
-            'Medico': [self.svMd.get()],
+            'Médico': [self.svMd.get()],
             'Especialidad': [self.sveEspe.get()],
-            'Fecha_Atencion': [self.svFDA.get()],
-            'Hora_Atencion': [self.svHDA.get()],
+            'Fecha_de_Atención': [self.svFDA.get()],
+            'Hora_de_Atención': [self.svHDA.get()],
             'Paciente': [self.svPaci.get()],
             'DNI': [self.svDNI.get()],
             'Sexo': [sexo],
             'Edad': [self.svedad.get()],
-            'Fecha_Nacimiento': [self.svFDN.get()],
+            'Fecha_de_Nacimiento': [self.svFDN.get()],
             'Grupo_Sanguineo': [self.svGS.get()],
             'Rh': [self.svRH.get()],
-            'Direccion': [self.svDireccion.get()],
-            'Ocupacion': [self.svOcup.get()],
-            'Datos_Padre': [self.svDpadre.get()],
-            'DNI_Padre': [self.svDNIp.get()],
-            'Telefono_Padre': [self.svTelefP.get()],
-            'Datos_Madre': [self.svDMadre.get()],
-            'DNI_Madre': [self.svDNIMadre.get()],
-            'Telefono_Madre': [self.svTelefonoMadre.get()],
-            'Datos_Apoderado': [self.svDatosApo.get()],
-            'DNI_Apoderado': [self.svDNIDDA.get()],
-            'Telefono_Apoderado': [self.svTelefonoApoderado.get()],
-            'Vinculo_Apoderado': [self.svVinculo.get()],
+            'Dirección': [self.svDireccion.get()],
+            'Ocupación': [self.svOcup.get()],
+            'Nombre_del_Padre': [self.svDpadre.get()],
+            'DNI_del_Padre': [self.svDNIp.get()],
+            'Telefono_del_Padre': [self.svTelefP.get()],
+            'Nombre_de_la_Madre': [self.svDMadre.get()],
+            'DNI_de_la_Madre': [self.svDNIMadre.get()],
+            'Telefono_de_la_Madre': [self.svTelefonoMadre.get()],
+            'Datos_del_Apoderado': [self.svDatosApo.get()],
+            'DNI_del_Apoderado': [self.svDNIDDA.get()],
+            'Telefono_del_Apoderado': [self.svTelefonoApoderado.get()],
+            'Vinculo_con_el_Menor': [self.svVinculo.get()],
             'Esquema_de_Vacunas': [vacunas_seleccionadas],
             'Antecedentes_Personales': [self.svAntecedentesP.get()],
             'Antecedentes_Familiares': [self.svAntecedentesF.get()],
@@ -656,10 +656,10 @@ class VentanaNinos(tk.Frame):
             'Motivo_Consulta': [self.svMC.get()],
             'Forma_Inicio': [self.svFdI.get()],
             'Tiempo_Enfermedad': [self.svTdE.get()],
-            'Signos_Sintomas_Principales': [self.svSySP.get()],
-            'Frecuencia_Cardiaca': [self.svFC.get()],
+            'Signos_y_Síntomas_Principales': [self.svSySP.get()],
+            'Frecuencia_Cardíaca': [self.svFC.get()],
             'Frecuencia_Respiratoria': [self.svFR.get()],
-            'Presion_Arterial': [self.svPresionA.get()],
+            'Presión_Arterial': [self.svPresionA.get()],
             'Temperatura': [self.svTC.get()],
             'Peso': [self.svPeso.get()],
             'Talla': [self.svTalla.get()],
@@ -766,31 +766,47 @@ class VentanaNinos(tk.Frame):
             return
 
     def exportar_a_excel(self):
-        # Obtener los datos de la tabla
-        datos_tabla = []
-        for iid in self.table.get_children():
-            valores = [self.table.item(iid, 'values')[0]]  # Obtener el ID
-            valores.extend(self.table.item(iid, 'values')[1:])  # Obtener los demás valores
-            datos_tabla.append(valores)
+        try:
+            # Intentar cargar el archivo CSV existente
+            df = pd.read_csv('datos_Niños.csv')
+        except FileNotFoundError:
+            print("El archivo 'datos_Niños.csv' no se encuentra.")
+            return
 
-        # Obtener los encabezados de las columnas
-        encabezados = [self.table.heading(col)["text"] for col in self.table["columns"]]
+        # Crear el cuadro de diálogo para seleccionar la ubicación de guardado
+        archivo_excel = filedialog.asksaveasfilename(defaultextension=".xlsx", filetypes=[("Excel files", "*.xlsx")])
 
-        # Crear un DataFrame de pandas con los datos y encabezados
-        df = pd.DataFrame(datos_tabla, columns=encabezados)
+        # Verificar si se seleccionó un archivo
+        if archivo_excel:
+            # Exportar el DataFrame a Excel
+            df.to_excel(archivo_excel, index=False)
+            print(f'Datos exportados correctamente en el archivo Excel: {archivo_excel}')
 
-        # Pedir al usuario que seleccione la ubicación y el nombre del archivo
-        archivo_guardado = filedialog.asksaveasfilename(
-            defaultextension=".xlsx",
-            filetypes=[("Archivos Excel", "*.xlsx"), ("Todos los archivos", "*.*")],
-            title="Guardar archivo Excel"
-        )
+    def importar_desde_excel(self):
+        # Solicitar al usuario que seleccione el archivo Excel para importar
+        archivo_excel = filedialog.askopenfilename(filetypes=[("Excel files", "*.xlsx")])
+        
+        if archivo_excel:
+            try:
+                # Leer el archivo Excel
+                df_excel = pd.read_excel(archivo_excel)
 
-        # Verificar si el usuario seleccionó un archivo
-        if archivo_guardado:
-            # Guardar el DataFrame como un archivo Excel
-            df.to_excel(archivo_guardado, index=False)
+                # Intentar cargar el DataFrame existente desde el archivo CSV
+                try:
+                    df_csv = pd.read_csv('datos_Niños.csv')
+                except FileNotFoundError:
+                    df_csv = pd.DataFrame()
 
-    def importar_desde_excel(importar_datos_nuevos):
-        pass
+                # Combinar los datos importados con los existentes, eliminando duplicados
+                df_completo = pd.concat([df_csv, df_excel], ignore_index=True).drop_duplicates()
+
+                # Guardar los datos en el archivo CSV
+                df_completo.to_csv('datos_Niños.csv', index=False)
+
+                # Cargar los datos en la tabla
+                self.load_data_to_table()
+
+                print("Datos importados correctamente desde el archivo Excel:", archivo_excel)
+            except Exception as e:
+                print("Error al importar desde el archivo Excel:", e)
 

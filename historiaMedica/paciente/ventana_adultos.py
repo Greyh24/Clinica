@@ -556,7 +556,6 @@ class VentanaAdultos(tk.Frame):
         except Exception as e:
             print("Error", f"Error al guardar en CSV: {str(e)}")
 
-
 if __name__ == "__main__":
     root = tk.Tk()
     app = VentanaAdultos(root)

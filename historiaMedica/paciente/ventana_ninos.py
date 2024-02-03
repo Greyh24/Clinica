@@ -1,6 +1,7 @@
 import tkinter as tk
 import pandas as pd
 import openpyxl
+import csv
 from tkcalendar import DateEntry
 from tkinter import ttk, filedialog
 from time import strftime
@@ -64,6 +65,21 @@ class VentanaNinos(tk.Frame):
     def on_frame_configure(self, event):
         # Configurar la región de desplazamiento del frame interior cuando cambia el tamaño
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+
+    def on_select(self, event):
+        # Obtén el elemento seleccionado
+        selected_item = self.table.selection()
+
+        if selected_item:
+            # Obtiene el valor de la Historia Clínica (HC) de la fila seleccionada
+            hc_value = self.table.item(selected_item, 'values')[0]
+
+            # Hacer algo con la Historia Clínica (HC), como imprimirlo
+            print(f"Selected Historia_Clinica: {hc_value}")
+
+            # También puedes acceder a los valores de la fila directamente desde el árbol
+            values = self.table.item(selected_item, 'values')
+            print(f"Values: {values}")
 
     def create_table(self):
         # Crear la tabla usando ttk.Treeview
@@ -240,7 +256,8 @@ class VentanaNinos(tk.Frame):
         self.svANTIAMARILICA.set(False)
 
     def camposPacienteNiño(self):
-       
+        self.svsexo_m = tk.IntVar()
+        self.svsexo_f = tk.IntVar()
         #labels
         self.lblHC =tk.Label(self.scrollable_frame, text='Historia Clinica: ',font=('ARIAL',10,'bold'), bg='#CDD8FF').grid(column=1, row=0, padx=(0, 1), pady=5)
 
@@ -362,14 +379,12 @@ class VentanaNinos(tk.Frame):
         self.entryDNI = tk.Entry(self.scrollable_frame, textvariable= self.svDNI,width=20, font=('ARIAL',10))
         self.entryDNI.grid(column=1, row=4, padx=(290, 0), pady=5)
 
-        # checkboxes para el género
-        self.svsexo_m = tk.IntVar()
+        # Checkboxes para el género
         self.checkbox_masculino = tk.Checkbutton(self.scrollable_frame, text='M', variable=self.svsexo_m, font=('ARIAL', 10, 'bold'), bg='#CDD8FF')
-        self.checkbox_masculino.grid(column=2, row=4,columnspan=2, padx=(0,10), pady=5)
+        self.checkbox_masculino.grid(column=2, row=4, columnspan=2, padx=(0,10), pady=5)
 
-        self.svsexo_f = tk.IntVar()
         self.checkbox_femenino = tk.Checkbutton(self.scrollable_frame, text='F', variable=self.svsexo_f, font=('ARIAL', 10, 'bold'), bg='#CDD8FF')
-        self.checkbox_femenino.grid(column=2, row=4,columnspan=2, padx=(119, 0), pady=5)
+        self.checkbox_femenino.grid(column=2, row=4, columnspan=2, padx=(119, 0), pady=5)
 
         self.svedad = tk.StringVar()
         self.entryedad = tk.Entry(self.scrollable_frame, textvariable= self.svedad,width=20, font=('ARIAL',10))
@@ -581,7 +596,7 @@ class VentanaNinos(tk.Frame):
         #BOTON
         self.btnGuardar = tk.Button(self.scrollable_frame, text='Guardar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#158645',cursor='hand2', activebackground='#35BD6F',command=self.guardar_datos_en_excel).grid(column=0, row=26, padx=(0, 20), pady=5)
 
-        self.btnModificar = tk.Button(self.scrollable_frame, text='Modificar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#1658A2',cursor='hand2', activebackground='#3D69F0').grid(column=0, row=26, padx=(200, 0), pady=5)
+        self.btnModificar = tk.Button(self.scrollable_frame, text='Modificar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#1658A2',cursor='hand2', activebackground='#3D69F0',command=self.modificar_datos).grid(column=0, row=26, padx=(200, 0), pady=5)
 
         self.btnEliminar = tk.Button(self.scrollable_frame, text='Eliminar',width=10, font=('Arial',10,'bold'), fg='#FFFEFE', bg='#D32F2F',cursor='hand2', activebackground='#E72D40',command=self.eliminar_seleccionado).grid(column=0, row=26, padx=(400, 0), pady=5)
 
@@ -810,3 +825,81 @@ class VentanaNinos(tk.Frame):
             except Exception as e:
                 print("Error al importar desde el archivo Excel:", e)
 
+    def modificar_datos(self):
+        selected_item = self.table.selection()
+        if not selected_item:
+            print("Por favor, selecciona un elemento de la tabla para modificar.")
+            return
+
+        row_index = self.table.index(selected_item)
+        fecha_actual = datetime.now().strftime("%d-%m-%Y")
+        sexo = 'Masculino' if self.svsexo_m.get() else 'Femenino' if self.svsexo_f.get() else ''
+        vacunas = [
+            'BCG' if self.svBCG.get() else None,
+            'HVB' if self.svHVB.get() else None,
+            'PENTAVALENTE' if self.svPENTAVALENTE.get() else None,
+            'ANTIPOLIO' if self.svANTIPOLIO.get() else None,
+            'ANTINEUMOCOCICA' if self.svANTINEUMOCOCICA.get() else None,
+            'DT' if self.svDT.get() else None,
+            'SPR' if self.svSPR.get() else None,
+            'ROTAVIRUS' if self.svROTAVIRUS.get() else None,
+            'INFLUENZA_PED' if self.svINFLUENZA_PED.get() else None,
+            'VARICELA' if self.svVARICELA.get() else None,
+            'DPR' if self.svDPR.get() else None,
+            'APO' if self.svAPO.get() else None,
+            'ANTIAMARILICA' if self.svANTIAMARILICA.get() else None,
+        ]
+        vacunas_seleccionadas = [vacuna for vacuna in vacunas if vacuna is not None]
+        otros_vacunas_valor = self.svOTROS.get().strip()
+        if otros_vacunas_valor:
+            vacunas_seleccionadas.append(otros_vacunas_valor)
+
+        # Convertir la lista de vacunas seleccionadas a una cadena
+        vacunas_string = ', '.join(vacunas_seleccionadas)
+
+        # Obtener los datos seleccionados del DataFrame
+        df = pd.read_csv('datos_Niños.csv')
+        datos = df.iloc[row_index].to_dict() 
+
+        # Llenar los campos con los datos seleccionados
+        self.svHC.set(datos['Historia_Clinica'])
+        self.svMd.set(datos['Médico'])
+        self.sveEspe.set(datos['Especialidad'])
+        self.svFDA.set(datos['Fecha de Atención'])
+        self.svHDA.set(datos['Hora de Atención'])
+        self.svPaci.set(datos['Paciente'])
+        self.svDNI.set(datos['DNI'])
+        self.svsexo_m.set(True) if datos['Sexo'] == 'Masculino' else self.svsexo_f.set(True)
+        self.svedad.set(datos['Edad'])
+        self.svFDN.set(datos['Fecha de Nacimiento'])
+        self.svGS.set(datos['Grupo Sanguineo'])
+        self.svRH.set(datos['Rh'])
+        self.svDireccion.set(datos['Dirección'])
+        self.svOcup.set(datos['Ocupación'])
+        self.svDpadre.set(datos['Nombre del Padre'])
+        self.svDNIp.set(datos['DNI del Padre'])
+        self.svTelefP.set(datos['Telefono del Padre'])
+        self.svDMadre.set(datos['Nombre de la Madre'])
+        self.svDNIMadre.set(datos['DNI de la Madre'])
+        self.svTelefonoMadre.set(datos['Telefono de la Madre'])
+        self.svDatosApo.set(datos['Datos del Apoderado'])
+        self.svDNIDDA.set(datos['DNI del Apoderado'])
+        self.svTelefonoApoderado.set(datos['Telefono del Apoderado'])
+        self.svVinculo.set(datos['Vinculo con el Menor'])
+        self.svAntecedentesP.set(datos['Antecedentes Personales'])
+        self.svAntecedentesF.set(datos['Antecedentes Familiares'])
+        self.svRA.set(datos['RAM/Alergias'])
+        self.svMC.set(datos['Motivo de la Consulta'])
+        self.svFdI.set(datos['Forma de Inicio'])
+        self.svTdE.set(datos['Tiempo de Enfermedad'])
+        self.svSySP.set(datos['Signos y Síntomas Principales'])
+        self.svFC.set(datos['Frecuencia Cardíaca'])
+        self.svFR.set(datos['Frecuencia Respiratoria'])
+        self.svPresionA.set(datos['Presión Arterial'])
+        self.svTC.set(datos['Temperatura'])
+        self.svPeso.set(datos['Peso'])
+        self.svTalla.set(datos['Talla'])
+
+        print("Datos cargados correctamente en los campos de la ventana.")
+
+                                            

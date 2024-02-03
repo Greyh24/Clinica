@@ -9,13 +9,14 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from matplotlib.backends.backend_pdf import PdfPages
 
-class VentanaDiagnosticoMedico(tk.Frame):
+class VentanaDiagnosticoMedico:
     def __init__(self, root):
-        super().__init__(root, width=1300, height=620)
         self.root = root
+        self.frame = tk.Frame(root, width=1300, height=620)
+        self.frame.pack()
 
         self.root.title("Diagnóstico Médico")
-        self.canvas = tk.Canvas(self, bg='#8C9BBA', width=1300, height=620)
+        self.canvas = tk.Canvas(self.frame, bg='#8C9BBA', width=1300, height=620)
         self.canvas.grid(row=0, column=0, sticky="nsew")
 
         # Obtener la resolución de la pantalla
@@ -34,7 +35,7 @@ class VentanaDiagnosticoMedico(tk.Frame):
 
         self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor=tk.NW)
 
-        self.scrollbar_y = tk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
+        self.scrollbar_y = tk.Scrollbar(self.frame, orient="vertical", command=self.canvas.yview)
         self.scrollbar_y.grid(row=0, column=1, sticky="ns")
         self.canvas.configure(yscrollcommand=self.scrollbar_y.set)
 
@@ -47,10 +48,11 @@ class VentanaDiagnosticoMedico(tk.Frame):
         self.camposDiagnosticoMedico()
 
     def on_canvas_configure(self, event):
-        # Configurar la región de desplazamiento del canvas cuando cambia el tamaño
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
     def on_frame_configure(self, event):
+        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+
         # Configurar la región de desplazamiento del frame interior cuando cambia el tamaño
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
@@ -1303,7 +1305,3 @@ class VentanaDiagnosticoMedico(tk.Frame):
     # Cierra la ventana principal
         self.root.destroy()
 
-root = tk.Tk()
-ventana = VentanaDiagnosticoMedico(root)
-ventana.pack()
-root.mainloop()

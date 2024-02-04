@@ -30,8 +30,18 @@ class Login:
         tk.Label(root, text="Usuario:", bg='#8C9BBA', font=(((('ARIAL',8, 'bold'))))).grid(row=1, column=0, padx=5, pady=5)
         tk.Entry(root, textvariable=self.usuario, width=30).grid(row=1, column=1, padx=5, pady=5)
 
-        tk.Label(root, text="Contraseña:", bg='#8C9BBA', font=(((('ARIAL',8, 'bold'))))).grid(row=2, column=0, padx=5, pady=5)
-        tk.Entry(root, textvariable=self.contrasena, width=30, show="*").grid(row=2, column=1, padx=5, pady=5)
+        tk.Label(root, text="Contraseña:", bg='#8C9BBA', font=((('ARIAL', 8, 'bold')))).grid(row=2, column=0, padx=5, pady=5)
+        self.contrasena_entry = tk.Entry(root, textvariable=self.contrasena, width=30, show="*")
+        self.contrasena_entry.grid(row=2, column=1, padx=5, pady=5)
+        
+        # Cargar la imagen del icono de ojo y redimensionarla
+        image_eye = Image.open("C:/Users/Yo/Desktop/Clinica/historiaMedica/imagenes/eye_icon.png")
+        image_eye = image_eye.resize((20, 15))
+        self.eye_icon = ImageTk.PhotoImage(image_eye)
+
+        # Crear un botón con la imagen del icono de ojo para mostrar u ocultar la contraseña
+        self.show_password_button = tk.Button(root, image=self.eye_icon, command=self.toggle_password_visibility)
+        self.show_password_button.grid(row=2, column=2, padx=5, pady=5, sticky="w")
 
         # OptionMenu para seleccionar el perfil de usuario
         tk.Label(root, text="Perfil de usuario:", bg='#8C9BBA', font=(((('ARIAL',8, 'bold'))))).grid(row=3, column=0, padx=5, pady=5)
@@ -82,33 +92,37 @@ class Login:
         else:
             messagebox.showerror("Error", "Datos incorrectos o perfil no autorizado.")
 
-    def registrar_usuario(self):
-        usuario = self.usuario.get()
-        contrasena = self.contrasena.get()
-        perfil = self.Perfil_de_Usuario.get()
+    def toggle_password_visibility(self):
+        # Muestra u oculta la contraseña según el estado actual
+        if self.contrasena_entry.cget("show") == "":
+            self.contrasena_entry.config(show="*")
+        else:
+            self.contrasena_entry.config(show="")
 
-        with open('Usuarios.csv', 'a', newline='') as file:
-            csv_writer = csv.writer(file)
-            csv_writer.writerow([usuario, contrasena, perfil])
-            messagebox.showinfo("Registro de Usuario", "Usuario registrado exitosamente.")
+    def toggle_password_visibility_registro(self):
+        # Muestra u oculta la contraseña en la ventana de registro según el estado actual
+        if self.contrasena_registro_entry.cget("show") == "":
+            self.contrasena_registro_entry.config(show="*")
+        else:
+            self.contrasena_registro_entry.config(show="")
 
     def Ventana_registrar_usuario(self):
         # Crear la nueva ventana
         ventana_registrar = tk.Toplevel()
         ventana_registrar.title("Registrar Usuario")
-        ventana_registrar.geometry("325x250")
+        ventana_registrar.geometry("345x250")
         ventana_registrar.configure(bg='#8C9BBA')  # Color de fondo para la ventana emergente
 
         # Variables para almacenar el usuario, contraseña y perfil de usuario
-        usuario_registro = tk.StringVar()
-        contrasena_registro = tk.StringVar()
-        perfil_registro = tk.StringVar()
+        self.usuario_registro = tk.StringVar()
+        self.contrasena_registro = tk.StringVar()
+        self.perfil_registro = tk.StringVar()
 
         # Función para registrar un nuevo usuario
         def crear_usuario():
-            usuario = usuario_registro.get()
-            contrasena = contrasena_registro.get()
-            perfil = perfil_registro.get()
+            usuario = self.usuario_registro.get()
+            contrasena = self.contrasena_registro.get()
+            perfil = self.perfil_registro.get()
 
             with open('Usuarios.csv', 'a', newline='') as file:
                 csv_writer = csv.writer(file)
@@ -116,8 +130,43 @@ class Login:
                 messagebox.showinfo("Registro de Usuario", "Usuario registrado exitosamente.")
                 ventana_registrar.destroy()  # Cerrar la ventana después de registrar el usuario
 
-        # Resto del código de la ventana de registro de usuario ...
+        # Etiquetas y campos de entrada para usuario, contraseña y perfil de usuario
+        tk.Label(ventana_registrar, text="Nuevo Usuario:", bg='#8C9BBA', font=((('ARIAL', 14, 'bold')))).grid(row=0, column=1, padx=5, pady=5, sticky="w")
+        tk.Label(ventana_registrar, text="Usuario:", bg='#8C9BBA', font=((('ARIAL', 8, 'bold')))).grid(row=1, column=0, padx=5, pady=5, sticky="w")
+        tk.Entry(ventana_registrar, textvariable=self.usuario_registro, width=30).grid(row=1, column=1, padx=5, pady=5)
 
+        tk.Label(ventana_registrar, text="Contraseña:", bg='#8C9BBA', font=((('ARIAL', 8, 'bold')))).grid(row=2, column=0, padx=5, pady=5, sticky="w")
+        self.contrasena_registro_entry = tk.Entry(ventana_registrar, textvariable=self.contrasena_registro, width=30, show="*")
+        self.contrasena_registro_entry.grid(row=2, column=1, padx=5, pady=5)
+        
+        # Cargar la imagen del icono de ojo y redimensionarla
+        image_eye = Image.open("C:/Users/Yo/Desktop/Clinica/historiaMedica/imagenes/eye_icon.png")
+        image_eye = image_eye.resize((20, 15))
+        self.eye_icon_registro = ImageTk.PhotoImage(image_eye)
+
+        # Crear un botón con la imagen del icono de ojo para mostrar u ocultar la contraseña
+        show_password_button_registro = tk.Button(ventana_registrar, image=self.eye_icon_registro, command=self.toggle_password_visibility_registro)
+        show_password_button_registro.grid(row=2, column=2, padx=5, pady=5, sticky="w")
+
+        # OptionMenu para seleccionar el perfil de usuario o crear uno nuevo
+        tk.Label(ventana_registrar, text="Perfil de usuario:", bg='#8C9BBA', font=((('ARIAL', 8, 'bold')))).grid(row=3, column=0, padx=5, pady=5, sticky="w")
+        opciones_perfil = ["Administracion", "Medico"]
+        perfil_registrado = tk.OptionMenu(ventana_registrar, self.perfil_registro, *opciones_perfil)
+        perfil_registrado.grid(row=3, column=1, padx=5, pady=5, sticky="ew")
+
+        # Botones para crear usuario y cancelar
+        tk.Button(ventana_registrar, text="Crear Usuario", width=15, fg='#FFFEFE', bg='#1658A2', cursor='hand2', activebackground='#3D69F0', font=((('ARIAL', 8, 'bold'))), command=crear_usuario).grid(row=4, column=1, padx=5, pady=20, sticky="ew")
+        tk.Button(ventana_registrar, text="Cancelar", width=15, fg='#FFFEFE', bg='#0F1010', cursor='hand2', activebackground='#FFFEFE', font=((('ARIAL', 8, 'bold'))), command=ventana_registrar.destroy).grid(row=5, column=1, padx=5, pady=5, sticky="ew")
+
+        # Centrar la ventana en la pantalla
+        ventana_registrar.update_idletasks()
+        ventana_width = ventana_registrar.winfo_width()
+        ventana_height = ventana_registrar.winfo_height()
+        screen_width = ventana_registrar.winfo_screenwidth()
+        screen_height = ventana_registrar.winfo_screenheight()
+        x = (screen_width - ventana_width) // 2
+        y = (screen_height - ventana_height) // 2
+        ventana_registrar.geometry(f"{ventana_width}x{ventana_height}+{x}+{y}")
 
 if __name__ == "__main__":
     root = tk.Tk()

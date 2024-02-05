@@ -3,11 +3,13 @@ import matplotlib.pyplot as plt
 from tkinter import messagebox,filedialog,ttk,Scrollbar
 from tkcalendar import DateEntry
 from time import strftime
+from tkinter import Menu
 from PIL import Image, ImageTk,ImageGrab
 from datetime import datetime
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from matplotlib.backends.backend_pdf import PdfPages
+import importlib
 
 class VentanaDiagnosticoMedico:
     def __init__(self, root):
@@ -44,8 +46,15 @@ class VentanaDiagnosticoMedico:
 
         datos_frame = tk.Frame(self.scrollable_frame, bg='#8C9BBA')
         datos_frame.grid(column=2, row=1, padx=5, pady=5, sticky='ew')
-
+        
         self.camposDiagnosticoMedico()
+        # Crear la barra de menú
+        self.menu_bar = Menu(root)
+        root.config(menu=self.menu_bar)
+        
+        # Agregar el menú "Cerrar Sesión"
+        self.menu_bar.add_command(label="Cerrar Sesión", command=self.cerrar_sesion)
+
 
     def on_canvas_configure(self, event):
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
@@ -136,8 +145,22 @@ class VentanaDiagnosticoMedico:
             imagen = Image.open(ruta_imagen)
 
             self.mostrar_imagen_en_label(imagen, self.contenedor_ExaAdi)
+        
+    def cerrar_sesion(self):
+        # Cerrar la ventana actual
+        self.root.destroy()
+        
+        # Obtener la clase Login utilizando getattr
+        login_module = __import__('login')
+        Login = getattr(login_module, 'Login')
+        
+        # Abrir la ventana de inicio de sesión sin pasar callback
+        root_login = tk.Tk()
+        login_page = Login(root_login)
+        root_login.mainloop()
 
     def camposDiagnosticoMedico(self):
+
         self.lblDM = tk.Label(self.scrollable_frame, text='Diagnóstico Médico: ', font=('ARIAL', 24, 'bold'),fg='#ffffff', bg='#8C9BBA')
         self.lblDM.grid(column=2, row=0, columnspan=3, padx=5, pady=5)
 

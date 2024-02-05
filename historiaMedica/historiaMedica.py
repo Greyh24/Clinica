@@ -36,6 +36,9 @@ class HistoriaMedicaApp:
         # Opciones específicas para el paciente niño
         paciente_menu.add_command(label="Niño", command=self.show_paciente_niño)
 
+        # Agregar opción "Cerrar Sesión"
+        paciente_menu.add_command(label="Cerrar Sesión", command=self.cerrar_sesion)
+
     def show_paciente_adulto(self):
         # Oculta la interfaz de paciente niño
         self.paciente_niño_frame.pack_forget()
@@ -52,6 +55,16 @@ class HistoriaMedicaApp:
         # Actualiza la tabla de pacientes niños
         self.paciente_niño_frame.load_data_to_table()
 
+    def cerrar_sesion(self):
+        # Cerrar la ventana actual
+        self.root.destroy()
+        
+        # Abrir la ventana de inicio de sesión
+        root_login = tk.Tk()
+        import login  # Importar aquí para evitar importaciones circulares
+        login_page = login.Login(root_login)
+        root_login.mainloop()
+    
     def center_window(self):
         # Función para centrar la ventana principal
         screen_width = self.root.winfo_screenwidth()

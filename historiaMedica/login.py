@@ -7,10 +7,11 @@ from PIL import Image, ImageTk
 from paciente.ventana_doctor import VentanaDiagnosticoMedico
 
 class Login:
-    def __init__(self, root):
+    def __init__(self, root,callback=None):
         self.root = root
         self.root.title("Inicio de Sesión")
         self.root.configure(bg='#8C9BBA')  # Color de fondo para la ventana principal
+        self.callback = callback
 
         # Cargar la imagen y redimensionarla
         image = Image.open("C:/Users/Yo/Desktop/Clinica/historiaMedica/imagenes/logo.jfif")
@@ -61,6 +62,11 @@ class Login:
         x = (screen_width - window_width) // 2
         y = (screen_height - window_height) // 2
         root.geometry(f"{window_width}x{window_height}+{x}+{y}")
+    
+    def abrir_ventana_login(self):
+        # Crear y mostrar la ventana de inicio de sesión
+        # Llamar al callback después de cerrar la ventana de inicio de sesión
+        self.callback()
 
     def verificar_datos(self):
         with open('Usuarios.csv', 'r') as file:
@@ -169,6 +175,10 @@ class Login:
         ventana_registrar.geometry(f"{ventana_width}x{ventana_height}+{x}+{y}")
 
 if __name__ == "__main__":
+    root = tk.Tk()
+    login = Login(root, None)  # Pasa None como callback
+    root.mainloop()
+
     root = tk.Tk()
     login = Login(root)
     root.mainloop()

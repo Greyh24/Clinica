@@ -15,7 +15,7 @@ class Login:
 
         # Cargar la imagen y redimensionarla
         image = Image.open("C:/Users/Yo/Desktop/Clinica/historiaMedica/imagenes/logo.jfif")
-        image = image.resize((100, 100))
+        image = image.resize((150, 150))
         self.logo = ImageTk.PhotoImage(image)
 
         # Mostrar la imagen en un Label

@@ -4,12 +4,11 @@ from tkinter import messagebox,filedialog,ttk,Scrollbar
 from tkcalendar import DateEntry
 from time import strftime
 from tkinter import Menu
-from PIL import Image, ImageTk,ImageGrab
+from PIL import Image, ImageTk
 from datetime import datetime
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from matplotlib.backends.backend_pdf import PdfPages
-import importlib
 
 class VentanaDiagnosticoMedico:
     def __init__(self, root):
@@ -54,7 +53,6 @@ class VentanaDiagnosticoMedico:
         
         # Agregar el menú "Cerrar Sesión"
         self.menu_bar.add_command(label="Cerrar Sesión", command=self.cerrar_sesion)
-
 
     def on_canvas_configure(self, event):
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
@@ -102,7 +100,7 @@ class VentanaDiagnosticoMedico:
 
         # Verificar si se seleccionó una imagen
         if ruta_imagen:
-            imagen = Image.open(ruta_imagen)
+            imagen = Image.open(ruta_imagen)  # Utiliza Image.open() de PIL
             self.mostrar_imagen_en_label(imagen, contenedor)
 
     def mostrar_imagen_en_label(self, imagen, contenedor):
@@ -145,7 +143,6 @@ class VentanaDiagnosticoMedico:
             imagen = Image.open(ruta_imagen)
 
             self.mostrar_imagen_en_label(imagen, self.contenedor_ExaAdi)
-        
     def cerrar_sesion(self):
         # Cerrar la ventana actual
         self.root.destroy()
@@ -622,7 +619,7 @@ class VentanaDiagnosticoMedico:
 
         # Cargar la imagen "firma.png"
         ruta_firma = "C:/Users/Yo/Desktop/Clinica/historiaMedica/imagenes/firma.png"
-        imagen_firma = Image.open(ruta_firma)
+        imagen_firma = Image.open(ruta_firma)  # Utiliza Image.open() de PIL
         self.mostrar_imagen_en_label(imagen_firma, self.contenedor_MedRes)
 
         self.svMedRes = tk.StringVar()
@@ -984,8 +981,6 @@ class VentanaDiagnosticoMedico:
             datos['Especialidad'] = especialidades
         else:
             datos['Especialidad'] = None  # O cualquier valor predeterminado que desees
-
-
         # Campos adicionales relacionados con el accidente
         datos['Prioridad_Daño'] = {key: value.get() for key, value in {
             'Prioridad1': self.svPriorid1,

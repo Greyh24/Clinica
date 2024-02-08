@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox
 from tkcalendar import DateEntry
+from datetime import datetime
 from tkinter import ttk
 import openpyxl
 import csv
@@ -294,9 +295,11 @@ class VentanaAdultos(tk.Frame):
             self.checkbox_masculino.deselect()
             self.checkbox_femenino.deselect()
 
+            # Actualizar la tabla con los datos ordenados después de guardar
+            self.cargar_formulario()
+
         except Exception as e:
             print("Error", f"Error al guardar datos: {str(e)}")
-        self.actualizar_tabla()
 
     def guardar_en_csv(self, datos):
         try:
@@ -314,14 +317,20 @@ class VentanaAdultos(tk.Frame):
                 reader = csv.reader(file)
                 next(reader, None)
                 datos = [row for row in reader]
-                print("Datos leídos desde el archivo CSV:", datos)  # Imprime los datos para depurar
+
+                # Convertir las fechas al formato adecuado y ordenar los datos por la columna 'Fecha' de manera descendente
+                datos.sort(key=lambda x: datetime.strptime(x[1], '%d-%m-%Y'), reverse=True)
 
                 # Limpiar la tabla antes de cargar los datos ordenados
                 self.tabla.delete(*self.tabla.get_children())
 
+                # Limpiar los datos originales antes de cargar los nuevos
+                self.datos_originales = []
+
+                # Insertar los datos ordenados en la tabla y en los datos originales
                 for row in datos:
                     self.tabla.insert("", "end", values=row, tags=(row[0],))
-                    self.datos_originales.append({  # Asegúrate de agregar los datos al atributo datos_originales
+                    self.datos_originales.append({
                         'HC': row[0],
                         'Fecha': row[1],
                         'Edad': row[2],
@@ -330,12 +339,11 @@ class VentanaAdultos(tk.Frame):
                         'Apellido': row[5],
                         'FechaN': row[6],
                         'Telefono': row[7],
-                        'DNI': row[8] 
+                        'DNI': row[8]
                     })
 
         except FileNotFoundError:
-            print("Archivo no encontrado")  # Agregado para depuración
-
+            print("Archivo no encontrado")
     def eliminar_datos_seleccionados(self):
         selected_item = self.tabla.selection()
 

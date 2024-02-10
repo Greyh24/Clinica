@@ -94,14 +94,18 @@ class VentanaDiagnosticoMedico:
         self.entryHoraD.delete(0, tk.END)
         self.entryHoraD.insert(0, hora_actual)   
 
-    def mostrar_imagen(self, event, contenedor):
+    def mostrar_imagen(self, event):
         # Abrir el cuadro de diálogo de selección de archivo
-        ruta_imagen = filedialog.askopenfilename(title="Seleccionar Imagen", filetypes=[("Archivos de imagen", "*.png;*.jpg;*.jpeg")])
+        nueva_ruta = filedialog.askopenfilename(title="Seleccionar Imagen", filetypes=[("Archivos de imagen", "*.png;*.jpg;*.jpeg")])
 
         # Verificar si se seleccionó una imagen
-        if ruta_imagen:
-            imagen = Image.open(ruta_imagen)  # Utiliza Image.open() de PIL
-            self.mostrar_imagen_en_label(imagen, contenedor)
+        if nueva_ruta:
+            self.cargar_imagen_firma(nueva_ruta) 
+    def cargar_imagen_firma(self, nueva_ruta):
+        self.ruta_firma = nueva_ruta  # Actualiza la ruta de la firma con la nueva ruta proporcionada
+        imagen = Image.open(nueva_ruta)
+        imagen.thumbnail((250, 80))
+        self.mostrar_imagen_en_label(imagen, self.contenedor_MedRes)
 
     def mostrar_imagen_en_label(self, imagen, contenedor):
         imagen.thumbnail((150, 100))
@@ -614,13 +618,11 @@ class VentanaDiagnosticoMedico:
 
         self.contenedor_MedRes = tk.Label(self.scrollable_frame, bg='#ffffff')
         self.contenedor_MedRes.grid(column=3, row=53, padx=5, pady=5)
-        self.imagen_tk_MedRes = None
-        self.contenedor_MedRes.bind("<Button-1>", lambda event, contenedor=self.contenedor_MedRes: self.mostrar_imagen(event, contenedor))
+        self.contenedor_MedRes.bind("<Button-1>", self.mostrar_imagen)
 
-        # Cargar la imagen "firma.png"
-        ruta_firma = "C:/Users/Yo/Desktop/Clinica/historiaMedica/imagenes/firma.png"
-        imagen_firma = Image.open(ruta_firma)  # Utiliza Image.open() de PIL
-        self.mostrar_imagen_en_label(imagen_firma, self.contenedor_MedRes)
+        # Cargar la imagen "firma.png" inicialmente
+        nueva_ruta = "C:/Users/Yo/Desktop/Clinica/historiaMedica/imagenes/firma.png"
+        self.cargar_imagen_firma(nueva_ruta)
 
         self.svMedRes = tk.StringVar()
         self.entryMedRes = tk.Entry(self.scrollable_frame, textvariable=self.svMedRes, width=30, font=('ARIAL', 10,'bold'))
@@ -931,7 +933,21 @@ class VentanaDiagnosticoMedico:
                     agregar_texto("{}".format(campo))
                 
                 y_destino -= espacio_requerido
-      
+        ruta_firma = datos_gui.get('Ruta_Firma', '')  # Obtener la ruta de la firma desde los datos
+
+        # Colocar firma del médico
+        firma_medico_y = 200  # Ajusta la posición de la firma según sea necesario
+        if ruta_firma:
+            imagen_firma = Image.open(ruta_firma)
+            imagen_firma.thumbnail((120, 50))  # Ajustar tamaño de la firma
+            c.drawImage(ruta_firma, 100, firma_medico_y, width=120, height=50)
+        else:
+            c.drawString(100, firma_medico_y, "Firma del Médico: ________________________")
+
+        # Agregar dato svMedRes debajo de la firma
+        dato_med_responsable = datos_gui.get('Medico_Responsable', '')
+        c.drawString(100, firma_medico_y - 20, "Médico Responsable: {}".format(dato_med_responsable))
+
 
         # Guardar el PDF
         c.save()
@@ -1067,178 +1083,10 @@ class VentanaDiagnosticoMedico:
             'Mortuorio': self.svMortuorio.get(),
             'No_Atendido': self.svNAtend.get(),
         }
+        datos['Medico_Responsable'] = self.svMedRes.get()
+        datos['Ruta_Firma'] = self.ruta_firma  # Utilizar la ruta de la firma almacenada
 
         return datos
-
-    #funcion utilizada para guardar ficha del diagnostico
-    def guardar_pdf(self, datos, file_path):
-        # Crear un nuevo PDF
-        c = canvas.Canvas(file_path, pagesize=letter)
-
-        # Agregar texto al PDF usando los datos proporcionados
-        c.drawString(100, 750, "Diagnóstico Médico: {}".format(datos["Diagnostico_Medico"]))
-        c.drawString(100, 730, "Paciente: {}".format(datos["Paciente"]))
-
-        # Campos adicionales relacionados con el paciente
-        y_paciente = 710
-        campos_paciente = [
-            ("Edad", datos["Edad"]),
-            ("Sexo", datos["Sexo"]),
-            ("Dirección", datos["Direccion"]),
-            ("Distrito", datos["Distrito"]),
-            ("Responsable", datos["Responsable"]),
-            ("Modo de Ingreso", datos["Modo_Ingreso"]),
-            ("DNI", datos["DNI"]),
-            ("Tipo de Accidente", datos["Tipo_AccidenteP"] or ""),  # Corregido el nombre de la clave
-            ("Tipo de Seguro", datos["Tipo_Seg"]),
-            ("Teléfono", datos["Telefono"]),
-            ("Ficha", datos["Ficha"]),
-            ("Fecha de Presentación", datos["Fecha_P"]),
-            ("Hora de Presentación", datos["Hora_P"]),
-            ("Historia", datos["Historia"]),
-            ("Especialidad", datos.get("Especialidad", "")),  # Asegurarse de manejar el caso en que no haya especialidad
-        ]
-
-        for campo, valor in campos_paciente:
-            c.drawString(100, y_paciente, "{}: {}".format(campo, valor))
-            y_paciente -= 20
-
-        # Campos adicionales relacionados con el accidente
-        y_accidente = y_paciente - 20
-        campos_accidente = [
-            ("Prioridad de Daño", datos["Prioridad_Daño"]or ""),
-            ("Tipo de Accidente", datos["Tipo_Accidente"]or ""),
-            ("Otros Accidentes", datos["Otros_Accidente"]),
-            ("Fecha del Accidente", datos["Fecha_Accidente"]),
-            ("Hora del Accidente", datos["Hora_Accidente"]),
-        ]
-
-        for campo, valor in campos_accidente:
-            c.drawString(100, y_accidente, "{}: {}".format(campo, valor))
-            y_accidente -= 20
-
-        # Campos adicionales relacionados con ANAMNESIS
-        y_anamnesis = y_accidente - 20
-        campos_anamnesis = [
-            ("Tiempo de Enfermedad", datos["Tiempo_Enfermedad"]),
-            ("Motivo de Consulta", datos["Motivo_Consulta"]),
-            ("Antecedentes", datos["Antecedentes"]),
-        ]
-
-        for campo, valor in campos_anamnesis:
-            c.drawString(100, y_anamnesis, "{}: {}".format(campo, valor))
-            y_anamnesis -= 20
-
-        # Campos adicionales relacionados con Examen Clínico
-        y_examen_clinico = y_anamnesis - 20
-        campos_examen_clinico = [
-            ("P.A", datos["P.A"]),
-            ("FC", datos["FC"]),
-            ("FR", datos["FR"]),
-            ("Tº", datos["Tº"]),
-            ("SO", datos["SO"]),
-            ("Peso", datos["Peso"]),
-        ]
-
-        for campo, valor in campos_examen_clinico:
-            c.drawString(100, y_examen_clinico, "{}: {}".format(campo, valor))
-            y_examen_clinico -= 20
-
-        # Campos adicionales relacionados con el examen preferencial
-        y_examen_preferencial = y_examen_clinico - 20
-        c.drawString(100, y_examen_preferencial, "Examen Preferencial: {}".format(datos["Examen_Preferencial"]))
-
-        # Campos adicionales relacionados con Diagnóstico de Ingreso
-        y_diagnostico_ingreso = y_examen_preferencial - 20
-        c.drawString(100, y_diagnostico_ingreso, "Diagnóstico de Ingreso: {}".format(datos["Diagnostico_Ingreso"]))
-        c.drawString(100, y_diagnostico_ingreso - 20, "COD CIE-10: {}".format(datos["COD_CIE_10"]))
-
-        # Campos adicionales relacionados con Plan de Trabajo
-        y_plan_trabajo = y_diagnostico_ingreso - 40
-        campos_plan_trabajo = [
-            ("Hidratación", datos["Plan_Trabajo"]["Hidratacion"]),
-            ("Tratamiento", datos["Plan_Trabajo"]["Tratamiento"]),
-        ]
-
-        for campo, valor in campos_plan_trabajo:
-            c.drawString(100, y_plan_trabajo, "{}: {}".format(campo, valor))
-            y_plan_trabajo -= 20
-
-        # Campos adicionales relacionados con Examenes Auxiliares
-        y_examenes_auxiliares = y_plan_trabajo - 20
-        campos_examenes_auxiliares = [
-            ("Laboratorio", datos["Examenes_Auxiliares"]["Laboratorio"]),
-            ("Radiología", datos["Examenes_Auxiliares"]["Radiologia"]),
-            ("Ecografía", datos["Examenes_Auxiliares"]["Ecografia"]),
-            ("Otros", datos["Examenes_Auxiliares"]["Otros"]),
-        ]
-
-        c.drawString(100, y_examenes_auxiliares, "Examenes Auxiliares:")
-        for campo, valor in campos_examenes_auxiliares:
-            c.drawString(120, y_examenes_auxiliares - 20, "{}: {}".format(campo, valor))
-            y_examenes_auxiliares -= 20
-
-        # Campos adicionales relacionados con Procedimientos
-        y_procedimientos = y_examenes_auxiliares - 20
-        c.drawString(100, y_procedimientos, "Procedimientos: {}".format(datos["Procedimientos"]))
-
-        # Campos adicionales relacionados con Diagnóstico Final
-        y_diagnostico_final = y_procedimientos - 20
-        campos_diagnostico_final = [
-            ("Diagnóstico Final", datos["Diagnostico_Final"]),
-            ("COD CIE-10f", datos["COD_CIE_10f"]),  # Agregado el campo COD_CIE-10f
-        ]
-
-        for campo, valor in campos_diagnostico_final:
-            c.drawString(100, y_diagnostico_final, "{}: {}".format(campo, valor))
-            y_diagnostico_final -= 20
-
-        # Campos adicionales relacionados con Indicaciones
-        y_indicaciones = y_diagnostico_final - 20
-        campos_indicaciones = [
-            ("Indicaciones", datos["Indicaciones"]),
-        ]
-
-        for campo, valor in campos_indicaciones:
-            c.drawString(100, y_indicaciones, "{}: {}".format(campo, valor))
-            y_indicaciones -= 20
-
-        # Campos adicionales relacionados con Observaciones
-        y_observaciones = y_indicaciones - 20
-        campos_observaciones = [
-            ("Observaciones", datos["Observaciones"]),
-        ]
-
-        for campo, valor in campos_observaciones:
-            c.drawString(100, y_observaciones, "{}: {}".format(campo, valor))
-            y_observaciones -= 20
-
-        # Campos adicionales relacionados con Destino
-        y_destino = y_observaciones - 20
-        campos_destino = [
-            ("Alta", datos["Destino"]["Alta"]),
-            ("Observación", datos["Destino"]["Observacion"]),
-            ("UPC", datos["Destino"]["UPC"]),
-            ("Hospitalización", datos["Destino"]["Hospitalizacion"]),
-            ("Centro Obstétrico", datos["Destino"]["Centro_Obstetrico"]),
-            ("Centro Quirúrgico", datos["Destino"]["Centro_Quirurgico"]),
-            ("Referencia/Transferencia", datos["Destino"]["Referencia_Transferencia"]),
-            ("Lugar", datos["Destino"]["Lugar"]),
-            ("Hora", datos["Destino"]["Hora"]),
-            ("Retiro Voluntario", datos["Destino"]["Retiro_Voluntario"]),
-            ("Fuga", datos["Destino"]["Fuga"]),
-            ("Mortuorio", datos["Destino"]["Mortuorio"]),
-            ("No Atendido", datos["Destino"]["No_Atendido"]),
-        ]
-
-        c.drawString(100, y_destino, "Destino:")
-        for campo, valor in campos_destino:
-            c.drawString(120, y_destino - 20, "{}: {}".format(campo, valor))
-            y_destino -= 20
-        
-        # Guardar el PDF
-        c.save()
-
     #funcion utilizada para crear ventana de la receta
     def abrir_nueva_ventana(self):
         nueva_ventana = tk.Toplevel(self.root)

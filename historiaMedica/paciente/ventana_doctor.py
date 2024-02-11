@@ -1,3 +1,5 @@
+import os
+import textwrap
 import tkinter as tk
 import matplotlib.pyplot as plt
 from tkinter import messagebox,filedialog,ttk,Scrollbar
@@ -659,15 +661,13 @@ class VentanaDiagnosticoMedico:
     def generar_pdf(self):
         # Obtener los datos de la GUI
         datos_gui = self.obtener_datos()
-
-        # Crear una interfaz de selección de archivo
         root = tk.Tk()
         root.withdraw()  # Evita que aparezca la ventana principal de tkinter
 
         # Mostrar el cuadro de diálogo para seleccionar la ubicación y el nombre del archivo
         file_path = filedialog.asksaveasfilename(defaultextension=".pdf", filetypes=[("PDF files", "*.pdf")])
 
-        # Verificar si el usuario canceló la operación
+         # Verificar si el usuario canceló la operación
         if not file_path:
             return
 
@@ -676,8 +676,9 @@ class VentanaDiagnosticoMedico:
 
         # Inicializar variables para el seguimiento de la posición en la página
         y_actual = 750
-        espacio_requerido = 20  # Espacio requerido entre líneas
+        espacio_requerido = 40  # Espacio requerido entre líneas e imágenes
         espacio_pagina = 750  # Espacio total en una página
+        espacio_superior_firma = 60  # Espacio vertical entre la firma y la lista de imágenes
 
         # Función para verificar si hay suficiente espacio en la página actual
         def hay_espacio_suficiente():
@@ -691,9 +692,27 @@ class VentanaDiagnosticoMedico:
 
         # Función para agregar texto a la página actual
         def agregar_texto(texto):
-            nonlocal y_actual
-            c.drawString(100, y_actual, texto)
-            y_actual -= espacio_requerido  # Actualizar la posición vertical
+            nonlocal c, y_actual
+            espacio_horizontal = 100  # Margen izquierdo
+            ancho_maximo = 500  # Ancho máximo del texto en la página
+            lineas = textwrap.wrap(texto, width=70)  # Dividir el texto en líneas de máximo 70 caracteres
+            
+            for linea in lineas:
+                ancho_texto = c.stringWidth(linea)
+                
+                if ancho_texto > ancho_maximo:
+                    # Dividir la línea en sublíneas si es necesario
+                    sublineas = textwrap.wrap(linea, width=30)
+                    for sublinea in sublineas:
+                        if not hay_espacio_suficiente():
+                            crear_nueva_pagina()  # Crear una nueva página si no hay suficiente espacio
+                        c.drawString(espacio_horizontal, y_actual, sublinea)
+                        y_actual -= espacio_requerido
+                else:
+                    if not hay_espacio_suficiente():
+                        crear_nueva_pagina()  # Crear una nueva página si no hay suficiente espacio
+                    c.drawString(espacio_horizontal, y_actual, linea)
+                    y_actual -= espacio_requerido  # Actualizar la posición vertical
 
         # Agregar texto al PDF usando los datos proporcionados
         agregar_texto("{}".format(datos_gui["Diagnostico_Medico"]))
@@ -896,7 +915,7 @@ class VentanaDiagnosticoMedico:
             agregar_texto("{}: {}".format(campo, valor))
             y_observaciones -= espacio_requerido
 
-       # Campos adicionales relacionados con Destino
+        # Campos adicionales relacionados con Destino
         y_destino = y_observaciones - espacio_requerido
         campos_destino = [
             ("Alta", datos_gui["Destino"].get("Alta", "")),
@@ -926,32 +945,78 @@ class VentanaDiagnosticoMedico:
                     y_destino = espacio_pagina
 
                 if campo == "Observación":
-                    agregar_texto("{}".format(campo, valor))
+                    agregar_texto("{}: {}".format(campo, valor))
                 elif campo in ["Lugar", "Hora"]:
                     agregar_texto("{}: {}".format(campo, valor))
                 else:
                     agregar_texto("{}".format(campo))
-                
-                y_destino -= espacio_requerido
-        ruta_firma = datos_gui.get('Ruta_Firma', '')  # Obtener la ruta de la firma desde los datos
 
-        # Colocar firma del médico
-        firma_medico_y = 200  # Ajusta la posición de la firma según sea necesario
+                y_destino -= espacio_requerido
+
+        # Obtener las rutas de las imágenes seleccionadas
+        imagenes_seleccionadas = []
+
+        for i in range(self.lista_imagenes.size()):
+            imagenes_seleccionadas.append(self.lista_imagenes.get(i))
+
+        # Aquí comienza la sección para agregar las imágenes al PDF
+        # Bucle para procesar y agregar las imágenes al PDF
+        for index, ruta_imagen in enumerate(imagenes_seleccionadas):
+            try:
+                # Verificar si es necesario un salto de página antes de agregar la imagen
+                if index > 0 and y_actual - 100 < 0:
+                    crear_nueva_pagina()
+
+                imagen = Image.open(ruta_imagen)
+                ancho, alto = imagen.size
+                if ancho > alto:
+                    aspect_ratio = alto / ancho
+                    ancho_nuevo = 300
+                    alto_nuevo = int(ancho_nuevo * aspect_ratio)
+                else:
+                    aspect_ratio = ancho / alto
+                    alto_nuevo = 300
+                    ancho_nuevo = int(alto_nuevo * aspect_ratio)
+                
+                # Verificar si hay suficiente espacio para la imagen
+                if y_actual - alto_nuevo - espacio_requerido < 0:
+                    crear_nueva_pagina()
+                    y_actual = espacio_pagina - alto_nuevo - espacio_requerido - espacio_superior_firma
+                    
+                c.drawInlineImage(ruta_imagen, 100, y_actual - alto_nuevo, width=ancho_nuevo, height=alto_nuevo)
+                y_actual -= (alto_nuevo + espacio_requerido)
+            except Exception as e:
+                print(f"Error al procesar imagen {ruta_imagen}: {e}")
+
+
+        # Sección para la firma del médico
+        ruta_firma = datos_gui.get('Ruta_Firma', '')  
+        firma_medico_y = 100 
         if ruta_firma:
             imagen_firma = Image.open(ruta_firma)
-            imagen_firma.thumbnail((120, 50))  # Ajustar tamaño de la firma
-            c.drawImage(ruta_firma, 100, firma_medico_y, width=120, height=50)
+            imagen_firma.thumbnail((120, 50))  
+            
+            # Calcular la posición horizontal centrada para la firma
+            ancho_pagina, _ = letter
+            ancho_firma, _ = imagen_firma.size
+            posicion_x = (ancho_pagina - ancho_firma) / 2
+            
+            c.drawImage(ruta_firma, posicion_x, firma_medico_y, width=ancho_firma, height=50)
         else:
-            c.drawString(100, firma_medico_y, "Firma del Médico: ________________________")
+            texto_firma = "Firma del Médico: ________________________"
+            ancho_texto = c.stringWidth(texto_firma)
+            
+            # Calcular la posición horizontal centrada para el texto de la firma
+            posicion_x = (ancho_pagina - ancho_texto) / 2
+            
+            c.drawString(posicion_x, firma_medico_y, texto_firma)
 
-        # Agregar dato svMedRes debajo de la firma
         dato_med_responsable = datos_gui.get('Medico_Responsable', '')
-        c.drawString(100, firma_medico_y - 20, "Médico Responsable: {}".format(dato_med_responsable))
-
+        c.drawString(posicion_x, firma_medico_y - 20, "Médico Responsable: {}".format(dato_med_responsable))
 
         # Guardar el PDF
         c.save()
-
+        
     def obtener_valor_seleccionado(self, diccionario):
         # Si el diccionario está vacío o no es un diccionario, devolver una cadena vacía
         if not diccionario or not isinstance(diccionario, dict):

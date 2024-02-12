@@ -178,7 +178,3 @@ if __name__ == "__main__":
     root = tk.Tk()
     login = Login(root, None)  # Pasa None como callback
     root.mainloop()
-
-    root = tk.Tk()
-    login = Login(root)
-    root.mainloop()

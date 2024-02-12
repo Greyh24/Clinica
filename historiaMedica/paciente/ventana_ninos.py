@@ -1,13 +1,11 @@
 import tkinter as tk
 import pandas as pd
-import openpyxl
-import csv
+import ast
 from tkcalendar import DateEntry
 from tkinter import ttk, filedialog
 from time import strftime
 from datetime import datetime
 from openpyxl import load_workbook
-
 
 class VentanaNinos(tk.Frame):
     def center_window(self):
@@ -574,9 +572,6 @@ class VentanaNinos(tk.Frame):
         self.entryTelefonoApoderado.config(validate="key", validatecommand=(self.root.register(self.validate_number), '%P'))
         
         # validación para aceptar números decimales
-        self.entryFC.config(validate="key", validatecommand=(self.register(self.validate_decimal), "%P"))
-        self.entryFR.config(validate="key", validatecommand=(self.register(self.validate_decimal), "%P"))
-        self.entryPresionA.config(validate="key", validatecommand=(self.register(self.validate_decimal), "%P"))
         self.entryTC.config(validate="key", validatecommand=(self.register(self.validate_decimal), "%P"))
         self.entryPeso.config(validate="key", validatecommand=(self.register(self.validate_decimal), "%P"))
         self.entryTalla.config(validate="key", validatecommand=(self.register(self.validate_decimal), "%P"))
@@ -606,23 +601,17 @@ class VentanaNinos(tk.Frame):
 
     def load_data_to_table(self):
         try:
-            df = pd.read_csv('datos_Niños.csv')
+            df = pd.read_csv('datos_Niños.csv', dtype=str)
         except FileNotFoundError:
             print("El archivo 'datos_Niños.csv' no se encuentra.")
             return
-        
-        # Ordenar los datos por 'Fecha de Atención' de manera descendente
         df['Fecha de Atención'] = pd.to_datetime(df['Fecha de Atención'])
         df = df.sort_values(by='Fecha de Atención', ascending=False)
-        
-        # Guardar los datos ordenados en el archivo CSV
         df.to_csv('datos_Niños.csv', index=False)
-        
-        # Limpiar la tabla antes de cargar los datos
+
         for item in self.table.get_children():
             self.table.delete(item)
-        
-        # Insertar los datos ordenados en la tabla
+
         for index, row in df.iterrows():
             formatted_date = row['Fecha de Atención'].strftime('%d-%m-%Y')
             row['Fecha de Atención'] = formatted_date
@@ -730,44 +719,44 @@ class VentanaNinos(tk.Frame):
 
         # Recopilar los datos actualizados
         datos_actualizados = {
-            'Historia_Clinica': str(self.svHC.get()),  # Convertir a string
-            'Médico': str(self.svMd.get()),  # Convertir a string
-            'Especialidad': str(self.sveEspe.get()),  # Convertir a string
-            'Fecha de Atención': str(self.svFDA.get()),  # Convertir a string
-            'Hora de Atención': str(self.svHDA.get()),  # Convertir a string
-            'Paciente': str(self.svPaci.get()),  # Convertir a string
-            'DNI': str(self.svDNI.get()),  # Convertir a string
+            'Historia_Clinica': str(self.svHC.get()),  
+            'Médico': str(self.svMd.get()),  
+            'Especialidad': str(self.sveEspe.get()), 
+            'Fecha de Atención': str(self.svFDA.get()), 
+            'Hora de Atención': str(self.svHDA.get()), 
+            'Paciente': str(self.svPaci.get()),  
+            'DNI': "{:0>8}".format(int(self.svDNI.get())), 
             'Sexo': sexo,
-            'Edad': str(self.svedad.get()),  # Convertir a string
-            'Fecha de Nacimiento': str(self.svFDN.get()),  # Convertir a string
-            'Grupo Sanguineo': str(self.svGS.get()),  # Convertir a string
-            'Rh': str(self.svRH.get()),  # Convertir a string
-            'Dirección': str(self.svDireccion.get()),  # Convertir a string
-            'Ocupación': str(self.svOcup.get()),  # Convertir a string
-            'Nombre del Padre': str(self.svDpadre.get()),  # Convertir a string
-            'DNI del Padre': str(self.svDNIp.get()),  # Convertir a string
-            'Telefono del Padre': str(self.svTelefP.get()),  # Convertir a string
-            'Nombre de la Madre': str(self.svDMadre.get()),  # Convertir a string
-            'DNI de la Madre': str(self.svDNIMadre.get()),  # Convertir a string
-            'Telefono de la Madre': str(self.svTelefonoMadre.get()),  # Convertir a string
-            'Datos del Apoderado': str(self.svDatosApo.get()),  # Convertir a string
-            'DNI del Apoderado': str(self.svDNIDDA.get()),  # Convertir a string
-            'Telefono del Apoderado': str(self.svTelefonoApoderado.get()),  # Convertir a string
-            'Vinculo con el Menor': str(self.svVinculo.get()),  # Convertir a string
+            'Edad': "{:0>2}".format(str(self.svedad.get())),  
+            'Fecha de Nacimiento': str(self.svFDN.get()),  
+            'Grupo Sanguineo': str(self.svGS.get()),  
+            'Rh': str(self.svRH.get()), 
+            'Dirección': str(self.svDireccion.get()),  
+            'Ocupación': str(self.svOcup.get()),  
+            'Nombre del Padre': str(self.svDpadre.get()), 
+            'DNI del Padre': "{:0>8}".format(int(self.svDNIp.get())),  
+            'Telefono del Padre': "{:0>9}".format(int(self.svTelefP.get())),  
+            'Nombre de la Madre': str(self.svDMadre.get()), 
+            'DNI de la Madre': "{:0>8}".format(int(self.svDNIMadre.get())),  
+            'Telefono de la Madre': "{:0>9}".format(str(self.svTelefonoMadre.get())),
+            'Datos del Apoderado': str(self.svDatosApo.get()),  
+            'DNI del Apoderado': "{:0>8}".format(int(self.svDNIDDA.get())), 
+            'Telefono del Apoderado': "{:0>9}".format(str(self.svTelefonoApoderado.get())),
+            'Vinculo con el Menor': str(self.svVinculo.get()), 
             'Esquema de Vacunas': vacunas_seleccionadas,
-            'Antecedentes Personales': str(self.svAntecedentesP.get()),  # Convertir a string
-            'Antecedentes Familiares': str(self.svAntecedentesF.get()),  # Convertir a string
-            'RAM/Alergias': str(self.svRA.get()),  # Convertir a string
-            'Motivo de la Consulta': str(self.svMC.get()),  # Convertir a string
-            'Forma de Inicio': str(self.svFdI.get()),  # Convertir a string
-            'Tiempo de Enfermedad': str(self.svTdE.get()),  # Convertir a string
-            'Signos y Síntomas Principales': str(self.svSySP.get()),  # Convertir a string
-            'Frecuencia Cardíaca': str(self.svFC.get()),  # Convertir a string
-            'Frecuencia Respiratoria': str(self.svFR.get()),  # Convertir a string
-            'Presión Arterial': str(self.svPresionA.get()),  # Convertir a string
-            'Temperatura': str(self.svTC.get()),  # Convertir a string
-            'Peso': str(self.svPeso.get()),  # Convertir a string
-            'Talla': str(self.svTalla.get()),  # Convertir a string
+            'Antecedentes Personales': str(self.svAntecedentesP.get()), 
+            'Antecedentes Familiares': str(self.svAntecedentesF.get()),  
+            'RAM/Alergias': str(self.svRA.get()),  
+            'Motivo de la Consulta': str(self.svMC.get()),  
+            'Forma de Inicio': str(self.svFdI.get()),  
+            'Tiempo de Enfermedad': str(self.svTdE.get()),  
+            'Signos y Síntomas Principales': str(self.svSySP.get()),  
+            'Frecuencia Cardíaca': "{:0>10}".format(str(self.svFC.get())),
+            'Frecuencia Respiratoria': "{:0>10}".format(str(self.svFR.get())),
+            'Presión Arterial': "{:0>10}".format(str(self.svPresionA.get())),
+            'Temperatura': "{:0>8}".format(str(self.svTC.get())),  
+            'Peso': "{:0>5}".format(str(self.svPeso.get())),
+            'Talla': "{:0>8}".format(str(self.svTalla.get())),  
         }
 
         # Actualizar la fila correspondiente en el DataFrame
@@ -907,10 +896,13 @@ class VentanaNinos(tk.Frame):
         self.svHDA.set(datos['Hora de Atención'])
         self.svPaci.set(datos['Paciente'])
         self.svDNI.set(datos['DNI'])
+        
+        # Checkboxes de sexo
         if datos['Sexo'] == 'Masculino':
             self.svsexo_m.set(True)
         elif datos['Sexo'] == 'Femenino':
             self.svsexo_f.set(True)
+            
         self.svedad.set(datos['Edad'])
         self.svFDN.set(datos['Fecha de Nacimiento'])
         self.svGS.set(datos['Grupo Sanguineo'])
@@ -941,4 +933,21 @@ class VentanaNinos(tk.Frame):
         self.svPeso.set(datos['Peso'])
         self.svTalla.set(datos['Talla'])
 
-        print("Datos cargados correctamente en los campos de la ventana.")
+        # Manejo de Esquema de Vacunas
+        vacunas = datos['Esquema de Vacunas']
+        otros_vacunas = []
+        try:
+            lista_vacunas = ast.literal_eval(vacunas)
+            for vacuna in lista_vacunas:
+                if vacuna in ['BCG', 'HVB', 'PENTAVALENTE', 'ANTIPOLIO', 'ANTINEUMOCOCICA', 'DT', 'SPR', 'ROTAVIRUS', 'INFLUENZA_PED', 'VARICELA', 'DPR', 'APO', 'ANTIAMARILICA']:
+                    # Si la vacuna está en la lista predeterminada, activa el checkbox correspondiente
+                    getattr(self, 'sv' + vacuna).set(True)
+                else:
+                    # Si no coincide con ninguna vacuna predeterminada, agregar a otros_vacunas
+                    otros_vacunas.append(vacuna)
+
+            # Si hay vacunas en otros_vacunas, establecerlas en el campo svOTROS
+            if otros_vacunas:
+                self.svOTROS.set(', '.join(otros_vacunas))
+        except ValueError:
+            print("Error al procesar la lista de vacunas.")

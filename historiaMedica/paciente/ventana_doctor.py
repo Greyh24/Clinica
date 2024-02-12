@@ -1192,7 +1192,6 @@ class VentanaDiagnosticoMedico:
 
         # Botones
         tk.Button(main_frame, text="Guardar", command=self.guardar_datosPdf, width=12, font=('Arial', 10, 'bold'), fg='#FFFEFE', bg='#0F1010', cursor='hand2', activebackground='#FFFEFE').grid(row=3, column=1, pady=5)
-        tk.Button(main_frame, text="Cerrar", command=self.root.destroy, width=12, font=('Arial', 10, 'bold'), fg='#FFFEFE', bg='#CF811E', cursor='hand2', activebackground='#E72D40').grid(row=3, column=2, pady=5)
 
     #funcion utilizada para guardar la receta
     def guardar_datosPdf(self):

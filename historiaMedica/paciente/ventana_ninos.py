@@ -1,6 +1,7 @@
 import tkinter as tk
 import pandas as pd
 import ast
+import math
 from tkcalendar import DateEntry
 from tkinter import ttk, filedialog
 from time import strftime
@@ -605,168 +606,99 @@ class VentanaNinos(tk.Frame):
         except FileNotFoundError:
             print("El archivo 'datos_Niños.csv' no se encuentra.")
             return
-        df['Fecha de Atención'] = pd.to_datetime(df['Fecha de Atención'])
+        df['Fecha de Atención'] = pd.to_datetime(df['Fecha de Atención'], format='%d-%m-%Y')
+        df['Fecha de Atención'] = df['Fecha de Atención'].dt.strftime('%d-%m-%Y')  # Formatear la fecha
         df = df.sort_values(by='Fecha de Atención', ascending=False)
         df.to_csv('datos_Niños.csv', index=False)
-
         for item in self.table.get_children():
             self.table.delete(item)
-
         for index, row in df.iterrows():
-            formatted_date = row['Fecha de Atención'].strftime('%d-%m-%Y')
-            row['Fecha de Atención'] = formatted_date
             self.table.insert("", "end", values=row.tolist()[0:])
-
+        
     def guardar_datos_en_excel(self):
         selected_item = self.table.selection()
-        if not selected_item:
-            print("Por favor, selecciona un elemento de la tabla para modificar.")
-            # Crear un nuevo registro si no se ha seleccionado ningún elemento
-            # Recopilar los datos para el nuevo registro
-            sexo = 'Masculino' if self.svsexo_m.get() else 'Femenino' if self.svsexo_f.get() else ''
-        
-            # Definir las vacunas seleccionadas antes de utilizarlas
-            vacunas = [
-                'BCG' if self.svBCG.get() else None, 'HVB' if self.svHVB.get() else None,
-                'PENTAVALENTE' if self.svPENTAVALENTE.get() else None, 'ANTIPOLIO' if self.svANTIPOLIO.get() else None,
-                'ANTINEUMOCOCICA' if self.svANTINEUMOCOCICA.get() else None, 'DT' if self.svDT.get() else None,
-                'SPR' if self.svSPR.get() else None, 'ROTAVIRUS' if self.svROTAVIRUS.get() else None,
-                'INFLUENZA_PED' if self.svINFLUENZA_PED.get() else None, 'VARICELA' if self.svVARICELA.get() else None,
-                'DPR' if self.svDPR.get() else None, 'APO' if self.svAPO.get() else None,
-                'ANTIAMARILICA' if self.svANTIAMARILICA.get() else None,
-            ]
-            vacunas_seleccionadas = [vacuna for vacuna in vacunas if vacuna is not None]
-            otros_vacunas_valor = self.svOTROS.get().strip()  
-            if otros_vacunas_valor:
-                vacunas_seleccionadas.append(otros_vacunas_valor)
-            
-            datos_nuevo_registro = {
-                'Historia_Clinica': str(self.svHC.get()),  # Convertir a string
-                'Médico': str(self.svMd.get()),  # Convertir a string
-                'Especialidad': str(self.sveEspe.get()),  # Convertir a string
-                'Fecha de Atención': str(self.svFDA.get()),  # Convertir a string
-                'Hora de Atención': str(self.svHDA.get()),  # Convertir a string
-                'Paciente': str(self.svPaci.get()),  # Convertir a string
-                'DNI': str(self.svDNI.get()),  # Convertir a string
-                'Sexo': sexo,
-                'Edad': str(self.svedad.get()),  # Convertir a string
-                'Fecha de Nacimiento': str(self.svFDN.get()),  # Convertir a string
-                'Grupo Sanguineo': str(self.svGS.get()),  # Convertir a string
-                'Rh': str(self.svRH.get()),  # Convertir a string
-                'Dirección': str(self.svDireccion.get()),  # Convertir a string
-                'Ocupación': str(self.svOcup.get()),  # Convertir a string
-                'Nombre del Padre': str(self.svDpadre.get()),  # Convertir a string
-                'DNI del Padre': str(self.svDNIp.get()),  # Convertir a string
-                'Telefono del Padre': str(self.svTelefP.get()),  # Convertir a string
-                'Nombre de la Madre': str(self.svDMadre.get()),  # Convertir a string
-                'DNI de la Madre': str(self.svDNIMadre.get()),  # Convertir a string
-                'Telefono de la Madre': str(self.svTelefonoMadre.get()),  # Convertir a string
-                'Datos del Apoderado': str(self.svDatosApo.get()),  # Convertir a string
-                'DNI del Apoderado': str(self.svDNIDDA.get()),  # Convertir a string
-                'Telefono del Apoderado': str(self.svTelefonoApoderado.get()),  # Convertir a string
-                'Vinculo con el Menor': str(self.svVinculo.get()),  # Convertir a string
-                'Esquema de Vacunas': vacunas_seleccionadas,
-                'Antecedentes Personales': str(self.svAntecedentesP.get()),  # Convertir a string
-                'Antecedentes Familiares': str(self.svAntecedentesF.get()),  # Convertir a string
-                'RAM/Alergias': str(self.svRA.get()),  # Convertir a string
-                'Motivo de la Consulta': str(self.svMC.get()),  # Convertir a string
-                'Forma de Inicio': str(self.svFdI.get()),  # Convertir a string
-                'Tiempo de Enfermedad': str(self.svTdE.get()),  # Convertir a string
-                'Signos y Síntomas Principales': str(self.svSySP.get()),  # Convertir a string
-                'Frecuencia Cardíaca': str(self.svFC.get()),  # Convertir a string
-                'Frecuencia Respiratoria': str(self.svFR.get()),  # Convertir a string
-                'Presión Arterial': str(self.svPresionA.get()),  # Convertir a string
-                'Temperatura': str(self.svTC.get()),  # Convertir a string
-                'Peso': str(self.svPeso.get()),  # Convertir a string
-                'Talla': str(self.svTalla.get()),  # Convertir a string
-            }
-
-            # Crear un DataFrame con el nuevo registro
-            nuevo_registro = pd.DataFrame([datos_nuevo_registro])
-
-            # Leer el archivo CSV existente (si lo hay)
-            try:
-                df = pd.read_csv('datos_Niños.csv')
-            except FileNotFoundError:
-                df = pd.DataFrame()
-
-            # Agregar el nuevo registro al DataFrame
-            df = pd.concat([df, nuevo_registro], ignore_index=True)
-
-            # Guardar el DataFrame actualizado en el archivo CSV
-            df.to_csv('datos_Niños.csv', index=False)
-            print('Nuevo registro creado y guardado correctamente en el archivo CSV.')
-            self.limpiar_datos()
-            self.actualizar_hora()
-            self.load_data_to_table()
-            return
-
-        # Si se ha seleccionado un elemento de la tabla, proceder con la actualización del registro existente
-        row_index = self.table.index(selected_item)
-
-        # Leer el archivo CSV existente
-        df = pd.read_csv('datos_Niños.csv')
-
-        fecha_actual = datetime.now().strftime("%d-%m-%Y")
         sexo = 'Masculino' if self.svsexo_m.get() else 'Femenino' if self.svsexo_f.get() else ''
-        vacunas = [
-            'BCG' if self.svBCG.get() else None,'HVB' if self.svHVB.get() else None,'PENTAVALENTE' if self.svPENTAVALENTE.get() else None,'ANTIPOLIO' if self.svANTIPOLIO.get() else None,'ANTINEUMOCOCICA' if self.svANTINEUMOCOCICA.get() else None,'DT' if self.svDT.get() else None,'SPR' if self.svSPR.get() else None,'ROTAVIRUS' if self.svROTAVIRUS.get() else None,'INFLUENZA_PED' if self.svINFLUENZA_PED.get() else None,'VARICELA' if self.svVARICELA.get() else None,'DPR' if self.svDPR.get() else None,'APO' if self.svAPO.get() else None,'ANTIAMARILICA' if self.svANTIAMARILICA.get() else None,
-        ]
+        vacunas = ['BCG' if self.svBCG.get() else None, 'HVB' if self.svHVB.get() else None, 'PENTAVALENTE' if self.svPENTAVALENTE.get() else None, 'ANTIPOLIO' if self.svANTIPOLIO.get() else None, 'ANTINEUMOCOCICA' if self.svANTINEUMOCOCICA.get() else None, 'DT' if self.svDT.get() else None, 'SPR' if self.svSPR.get() else None, 'ROTAVIRUS' if self.svROTAVIRUS.get() else None, 'INFLUENZA_PED' if self.svINFLUENZA_PED.get() else None, 'VARICELA' if self.svVARICELA.get() else None, 'DPR' if self.svDPR.get() else None, 'APO' if self.svAPO.get() else None, 'ANTIAMARILICA' if self.svANTIAMARILICA.get() else None,]
         vacunas_seleccionadas = [vacuna for vacuna in vacunas if vacuna is not None]
-        otros_vacunas_valor = self.svOTROS.get().strip()  
+        otros_vacunas_valor = self.svOTROS.get().strip()
         if otros_vacunas_valor:
             vacunas_seleccionadas.append(otros_vacunas_valor)
+        
+        # Manejo de conversiones para los campos de interés
+        dni_padre_value = self.svDNIp.get()
+        dni_padre_str = dni_padre_value if dni_padre_value else None
 
-        # Recopilar los datos actualizados
-        datos_actualizados = {
-            'Historia_Clinica': str(self.svHC.get()),  
-            'Médico': str(self.svMd.get()),  
-            'Especialidad': str(self.sveEspe.get()), 
-            'Fecha de Atención': str(self.svFDA.get()), 
-            'Hora de Atención': str(self.svHDA.get()), 
-            'Paciente': str(self.svPaci.get()),  
-            'DNI': "{:0>8}".format(int(self.svDNI.get())), 
+        dni_madre_value = self.svDNIMadre.get()
+        dni_madre_str = dni_madre_value if dni_madre_value else None
+
+        dni_apoderado_value = self.svDNIDDA.get()
+        dni_apoderado_str = dni_apoderado_value if dni_apoderado_value else None
+
+        telefono_padre_value = self.svTelefP.get()
+        telefono_padre_str = telefono_padre_value if telefono_padre_value else None
+
+        telefono_madre_value = self.svTelefonoMadre.get()
+        telefono_madre_str = telefono_madre_value if telefono_madre_value else None
+
+        telefono_apoderado_value = self.svTelefonoApoderado.get()
+        telefono_apoderado_str = telefono_apoderado_value if telefono_apoderado_value else None
+
+        datos_nuevo_registro = {
+            'Historia_Clinica': str(self.svHC.get()),
+            'Médico': str(self.svMd.get()),
+            'Especialidad': str(self.sveEspe.get()),
+            'Fecha de Atención': str(self.svFDA.get()),
+            'Hora de Atención': str(self.svHDA.get()),
+            'Paciente': str(self.svPaci.get()),
+            'DNI': "{:0>8}".format(int(self.svDNI.get())),
             'Sexo': sexo,
-            'Edad': "{:0>2}".format(str(self.svedad.get())),  
-            'Fecha de Nacimiento': str(self.svFDN.get()),  
-            'Grupo Sanguineo': str(self.svGS.get()),  
-            'Rh': str(self.svRH.get()), 
-            'Dirección': str(self.svDireccion.get()),  
-            'Ocupación': str(self.svOcup.get()),  
-            'Nombre del Padre': str(self.svDpadre.get()), 
-            'DNI del Padre': "{:0>8}".format(int(self.svDNIp.get())),  
-            'Telefono del Padre': "{:0>9}".format(int(self.svTelefP.get())),  
-            'Nombre de la Madre': str(self.svDMadre.get()), 
-            'DNI de la Madre': "{:0>8}".format(int(self.svDNIMadre.get())),  
-            'Telefono de la Madre': "{:0>9}".format(str(self.svTelefonoMadre.get())),
-            'Datos del Apoderado': str(self.svDatosApo.get()),  
-            'DNI del Apoderado': "{:0>8}".format(int(self.svDNIDDA.get())), 
-            'Telefono del Apoderado': "{:0>9}".format(str(self.svTelefonoApoderado.get())),
-            'Vinculo con el Menor': str(self.svVinculo.get()), 
+            'Edad':str(self.svedad.get()),
+            'Fecha de Nacimiento': str(self.svFDN.get()),
+            'Grupo Sanguineo': str(self.svGS.get()),
+            'Rh': str(self.svRH.get()),
+            'Dirección': str(self.svDireccion.get()),
+            'Ocupación': str(self.svOcup.get()),
+            'Nombre del Padre': str(self.svDpadre.get()),
+            'DNI del Padre': dni_padre_str,
+            'Telefono del Padre': telefono_padre_str,
+            'Nombre de la Madre': str(self.svDMadre.get()),
+            'DNI de la Madre': dni_madre_str,
+            'Telefono de la Madre': telefono_madre_str,
+            'Datos del Apoderado': str(self.svDatosApo.get()),
+            'DNI del Apoderado': dni_apoderado_str,
+            'Telefono del Apoderado': telefono_apoderado_str,
+            'Vinculo con el Menor': str(self.svVinculo.get()),
             'Esquema de Vacunas': vacunas_seleccionadas,
-            'Antecedentes Personales': str(self.svAntecedentesP.get()), 
-            'Antecedentes Familiares': str(self.svAntecedentesF.get()),  
-            'RAM/Alergias': str(self.svRA.get()),  
-            'Motivo de la Consulta': str(self.svMC.get()),  
-            'Forma de Inicio': str(self.svFdI.get()),  
-            'Tiempo de Enfermedad': str(self.svTdE.get()),  
-            'Signos y Síntomas Principales': str(self.svSySP.get()),  
-            'Frecuencia Cardíaca': "{:0>10}".format(str(self.svFC.get())),
-            'Frecuencia Respiratoria': "{:0>10}".format(str(self.svFR.get())),
-            'Presión Arterial': "{:0>10}".format(str(self.svPresionA.get())),
-            'Temperatura': "{:0>8}".format(str(self.svTC.get())),  
-            'Peso': "{:0>5}".format(str(self.svPeso.get())),
-            'Talla': "{:0>8}".format(str(self.svTalla.get())),  
+            'Antecedentes Personales': str(self.svAntecedentesP.get()),
+            'Antecedentes Familiares': str(self.svAntecedentesF.get()),
+            'RAM/Alergias': str(self.svRA.get()),
+            'Motivo de la Consulta': str(self.svMC.get()),
+            'Forma de Inicio': str(self.svFdI.get()),
+            'Tiempo de Enfermedad': str(self.svTdE.get()),
+            'Signos y Síntomas Principales': str(self.svSySP.get()),
+            'Frecuencia Cardíaca': str(self.svFC.get()),
+            'Frecuencia Respiratoria': str(self.svFR.get()),
+            'Presión Arterial': str(self.svPresionA.get()),
+            'Temperatura': str(self.svTC.get()),
+            'Peso': str(self.svPeso.get()),
+            'Talla': str(self.svTalla.get()),
         }
 
-        # Actualizar la fila correspondiente en el DataFrame
-        df.iloc[row_index] = datos_actualizados
+        try:
+            df = pd.read_csv('datos_Niños.csv')
+        except FileNotFoundError:
+            df = pd.DataFrame()
 
-        # Guardar el DataFrame actualizado en el archivo CSV
+        if not selected_item:
+            df = pd.concat([df, pd.DataFrame([datos_nuevo_registro])], ignore_index=True)
+            print('Nuevo registro creado y guardado correctamente en el archivo CSV.')
+        else:
+            row_index = self.table.index(selected_item)
+            row_data = {key: str(value) for key, value in datos_nuevo_registro.items()}
+            df.loc[row_index] = row_data
+            print('Datos modificados y guardados correctamente en el archivo CSV.')
+
         df.to_csv('datos_Niños.csv', index=False)
-        print('Datos modificados y guardados correctamente en el archivo CSV.')
-
-        # Limpiar los datos de los campos después de guardar
         self.limpiar_datos()
         self.actualizar_hora()
         self.load_data_to_table()
@@ -884,11 +816,12 @@ class VentanaNinos(tk.Frame):
         if not selected_item:
             print("Por favor, selecciona un elemento de la tabla para modificar.")
             return
-
         row_index = self.table.index(selected_item)
-        df = pd.read_csv('datos_Niños.csv')
+        try:
+            df = pd.read_csv('datos_Niños.csv', dtype={'DNI del Padre': object, 'Telefono del Padre': object, 'DNI de la Madre': object, 'Telefono de la Madre': object, 'DNI del Apoderado': object, 'Telefono del Apoderado': object})
+        except FileNotFoundError:
+            df = pd.DataFrame()
         datos = df.iloc[row_index].to_dict() 
-
         self.svHC.set(datos['Historia_Clinica'])
         self.svMd.set(datos['Médico'])
         self.sveEspe.set(datos['Especialidad'])
@@ -896,14 +829,11 @@ class VentanaNinos(tk.Frame):
         self.svHDA.set(datos['Hora de Atención'])
         self.svPaci.set(datos['Paciente'])
         self.svDNI.set(datos['DNI'])
-        
-        # Checkboxes de sexo
         if datos['Sexo'] == 'Masculino':
             self.svsexo_m.set(True)
         elif datos['Sexo'] == 'Femenino':
             self.svsexo_f.set(True)
-            
-        self.svedad.set(datos['Edad'])
+        self.svedad.set(int(datos['Edad']))
         self.svFDN.set(datos['Fecha de Nacimiento'])
         self.svGS.set(datos['Grupo Sanguineo'])
         self.svRH.set(datos['Rh'])
@@ -926,27 +856,21 @@ class VentanaNinos(tk.Frame):
         self.svFdI.set(datos['Forma de Inicio'])
         self.svTdE.set(datos['Tiempo de Enfermedad'])
         self.svSySP.set(datos['Signos y Síntomas Principales'])
-        self.svFC.set(datos['Frecuencia Cardíaca'])
-        self.svFR.set(datos['Frecuencia Respiratoria'])
-        self.svPresionA.set(datos['Presión Arterial'])
+        self.svFC.set(int(datos['Frecuencia Cardíaca']))
+        self.svFR.set(int(datos['Frecuencia Respiratoria']))
+        self.svPresionA.set(int(datos['Presión Arterial']))
         self.svTC.set(datos['Temperatura'])
-        self.svPeso.set(datos['Peso'])
-        self.svTalla.set(datos['Talla'])
-
-        # Manejo de Esquema de Vacunas
+        self.svPeso.set(int(datos['Peso']))
+        self.svTalla.set(int(datos['Talla']))
         vacunas = datos['Esquema de Vacunas']
         otros_vacunas = []
         try:
             lista_vacunas = ast.literal_eval(vacunas)
             for vacuna in lista_vacunas:
                 if vacuna in ['BCG', 'HVB', 'PENTAVALENTE', 'ANTIPOLIO', 'ANTINEUMOCOCICA', 'DT', 'SPR', 'ROTAVIRUS', 'INFLUENZA_PED', 'VARICELA', 'DPR', 'APO', 'ANTIAMARILICA']:
-                    # Si la vacuna está en la lista predeterminada, activa el checkbox correspondiente
                     getattr(self, 'sv' + vacuna).set(True)
                 else:
-                    # Si no coincide con ninguna vacuna predeterminada, agregar a otros_vacunas
                     otros_vacunas.append(vacuna)
-
-            # Si hay vacunas en otros_vacunas, establecerlas en el campo svOTROS
             if otros_vacunas:
                 self.svOTROS.set(', '.join(otros_vacunas))
         except ValueError:

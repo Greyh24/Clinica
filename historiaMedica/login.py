@@ -1,4 +1,5 @@
 import csv
+import os
 import tkinter as tk
 from tkinter import messagebox
 from historiamedica import HistoriaMedicaApp
@@ -132,6 +133,9 @@ class Login:
 
             with open('Usuarios.csv', 'a', newline='') as file:
                 csv_writer = csv.writer(file)
+                # Verificar si el archivo está vacío para escribir el encabezado
+                if os.path.getsize('Usuarios.csv') == 0:
+                    csv_writer.writerow(['usuario', 'contrasena', 'perfil'])
                 csv_writer.writerow([usuario, contrasena, perfil])
                 messagebox.showinfo("Registro de Usuario", "Usuario registrado exitosamente.")
                 ventana_registrar.destroy()  # Cerrar la ventana después de registrar el usuario

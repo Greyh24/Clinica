@@ -162,6 +162,98 @@ class VentanaDiagnosticoMedico:
         login_page = Login(root_login)
         root_login.mainloop()
 
+    def LimpiarCampos(self):
+    # Limpiar campos
+        self.svPaci.set('')
+        self.svEdad.set('')
+        self.svSex.set('')
+        self.svDir.set('')
+        self.svDis.set('')
+        self.svResp.set('')
+        self.svMI.set('')
+        self.svDNI.set('')
+        self.svTrans.set('')
+        self.svTseg.set('')
+        self.svTel.set('')
+        self.svFicha.set('')
+        self.svfechaP.set('')
+        self.svHoraP.set('')
+        self.svHistoria.set('')
+        self.svTipoE.set('')
+        self.svMC.set('')
+        self.svAntecedentes.set('')
+        self.svPA.set('')
+        self.svFC.set('')
+        self.svFR.set('')
+        self.svTemp.set('')
+        self.svSO.set('')
+        self.svPeso.set('')
+        self.svExamenP.set('')
+        self.svDdi.set('')
+        self.svCodCie.set('')
+        self.svHidratS.set(False)
+        self.svHidratN.set(False)
+        self.svLaboratorio.set(False)
+        self.svRadiología.set(False)
+        self.svEcografía.set(False)
+        self.svOtros.set('')
+        self.svOtrosAT.set('')
+        self.entryProcedimientos.delete('1.0', tk.END)
+        self.svDF.set('')
+        self.svCodCief.set('')
+        self.entryIndicaciones.delete('1.0', tk.END)
+        self.entryObservaciones.delete('1.0', tk.END)
+        self.svMedRes.set('')
+        self.svLugar.set('')
+        self.entryTratam.delete('1.0', tk.END)
+        # Desmarcar checkboxes
+        self.svMedicina.set(False)
+        self.svPediatria.set(False)
+        self.svCirugia.set(False)
+        self.svGineco_OBS.set(False)
+        self.svPriorid1.set(False)
+        self.svPriorid2.set(False)
+        self.svPriorid3.set(False)
+        self.svPriorid4.set(False)
+        self.svAtrop.set(False)
+        self.svChoque.set(False)
+        self.svDespiste.set(False)
+        self.svIncendio.set(False)
+        self.svAyF.set(False)
+        self.svCyF.set(False)
+        self.svCaidaP.set(False)
+        self.svVolcadura.set(False)
+        self.svAlta.set(False)
+        self.svObservación.set(False)
+        self.svUPC.set(False)
+        self.svCObs.set(False)
+        self.svCquir.set(False)
+        self.svR_Trans.set(False)
+        self.svFuga.set(False)
+        self.svMortuorio.set(False)
+        self.svNAtend.set(False)
+        self.svRetVol.set(False)
+        self.svHospitalización.set(False)
+        # Eliminar la imagen del médico responsable
+        self.contenedor_MedRes.config(image=None)
+        self.imagen_tk_MedRes = None
+        
+        # Eliminar la imagen de exámenes adicionales
+        self.contenedor_ExaAdi.config(image=None)
+        self.imagen_tk_ExaAdi = None
+        
+        # Limpiar la lista de imágenes
+        self.lista_imagenes.delete(0, tk.END)
+        
+        # Mostrar las imágenes predeterminadas
+        ruta_predeterminada_firma = "C:/Users/Yo/Desktop/Clinica/historiaMedica/imagenes/firma.png"
+        imagen_predeterminada_firma = Image.open(ruta_predeterminada_firma)
+        self.mostrar_imagen_en_label(imagen_predeterminada_firma, self.contenedor_MedRes)
+        
+        ruta_predeterminada_galeria = "C:/Users/Yo/Desktop/Clinica/historiaMedica/imagenes/galeria.png"
+        imagen_predeterminada_galeria = Image.open(ruta_predeterminada_galeria)
+        self.mostrar_imagen_en_label(imagen_predeterminada_galeria, self.contenedor_ExaAdi)
+
     def camposDiagnosticoMedico(self):
 
         self.lblDM = tk.Label(self.scrollable_frame, text='Diagnóstico Médico: ', font=('ARIAL', 24, 'bold'),fg='#ffffff', bg='#8C9BBA')
@@ -656,6 +748,9 @@ class VentanaDiagnosticoMedico:
 
         self.BtnCerrar = tk.Button(self.scrollable_frame, text='Cerrar', width=20, font=('Arial', 10, 'bold'),fg='#FFFEFE', bg='#D32F2F', cursor='hand2', activebackground='#3D69F0',command=self.cerrar_ventana)
         self.BtnCerrar.grid(column=5, row=59, padx=5, pady=5)
+
+        self.BtnCerrar = tk.Button(self.scrollable_frame, text='Liimpiar campos', width=20, font=('Arial', 10, 'bold'),fg='#FFFEFE', bg='#6D00FD', cursor='hand2', activebackground='#FFFEFE',command=self.LimpiarCampos)
+        self.BtnCerrar.grid(column=3, row=60, padx=5, pady=5)
     
     #funcion utilizada para crear pdf de la ficha del diagnostico
     def generar_pdf(self):
